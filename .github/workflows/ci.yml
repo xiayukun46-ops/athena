@@ -1,0 +1,135 @@
+﻿name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================
+  # Documentation Quality Check
+  # ============================================================
+  docs-check:
+    name: Documentation Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required documents exist
+        run: |
+          required_files=(
+            "README.md"
+            "CONTRIBUTING.md"
+            "CODEOWNERS"
+            "LICENSE"
+            "PROJECT_CONSTITUTION.md"
+            "CODING_STANDARD.md"
+            "DEVELOPMENT_ROADMAP.md"
+            "PLUGIN_SPECIFICATION.md"
+            "AGENT_SPECIFICATION.md"
+            "API_STYLE_GUIDE.md"
+            "DATABASE_CONVENTION.md"
+            "docs/adr/ADR-000-template.md"
+            "docs/adr/ADR-001-project-init.md"
+            "docs/rfc/RFC-000-template.md"
+            "docs/domain/domain-model.md"
+            "docs/architecture/overview.md"
+          )
+          for file in "''${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: Required file not found: $file"
+              exit 1
+            fi
+          done
+          echo "All required documents present."
+
+      - name: Markdown lint
+        uses: DavidAnson/markdownlint-cli2-action@v15
+        with:
+          globs: "**/*.md"
+        continue-on-error: true
+
+  # ============================================================
+  # Security Scan
+  # ============================================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          severity: "HIGH,CRITICAL"
+          exit-code: 0
+
+      - name: Check for secrets
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: "detect --source . --verbose"
+
+  # ============================================================
+  # License Compliance
+  # ============================================================
+  license-check:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify LICENSE file
+        run: |
+          if grep -q "Apache License" LICENSE; then
+            echo "LICENSE file verified."
+          else
+            echo "ERROR: LICENSE file missing or incorrect."
+            exit 1
+          fi
+
+      - name: Check dependency licenses (FOSSA)
+        uses: fossas/fossa-action@v1
+        continue-on-error: true
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+          run-tests: false
+
+  # ============================================================
+  # Placeholder: Python checks (Phase 1+)
+  # ============================================================
+  # python-check:
+  #   name: Python Lint & Test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.12"
+  #     - run: pip install ruff pytest
+  #     - run: ruff check src/
+  #     - run: pytest tests/
+
+  # ============================================================
+  # Placeholder: TypeScript checks (Phase 1+)
+  # ============================================================
+  # typescript-check:
+  #   name: TypeScript Lint & Type Check
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: pnpm/action-setup@v2
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "22"
+  #         cache: "pnpm"
+  #     - run: pnpm install
+  #     - run: pnpm lint
+  #     - run: pnpm typecheck

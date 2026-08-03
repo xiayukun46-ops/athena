@@ -1,0 +1,26 @@
+﻿# CODEOWNERS
+
+# 全局所有者
+* @athena-maintainers
+
+# 宪法与核心治理
+PROJECT_CONSTITUTION.md @athena-maintainers
+
+# 文档
+/docs/ @athena-maintainers
+/docs/adr/ @athena-maintainers
+/docs/rfc/ @athena-maintainers
+/docs/architecture/ @athena-architects
+
+# CI/CD
+/.github/ @athena-devops
+/.github/workflows/ @athena-devops
+
+# AI 配置
+/.ai/ @athena-ai
+
+# 安全
+# 所有涉及认证、加密、安全的变更需安全团队审查
+**/auth* @athena-security
+**/crypto* @athena-security
+**/security* @athena-security

@@ -1,0 +1,35 @@
+﻿name: Feature Request
+description: 提出一个新功能建议
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "新功能建议请先检查 [Development Roadmap](../../DEVELOPMENT_ROADMAP.md) 和已有 RFC。"
+  - type: textarea
+    id: problem
+    attributes:
+      label: "解决的问题"
+      description: "这个功能解决什么问题？"
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "方案建议"
+      description: "你建议如何实现？"
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "替代方案"
+      description: "考虑过哪些替代方案？"
+  - type: dropdown
+    id: scope
+    attributes:
+      label: "影响范围"
+      options:
+        - 仅影响单个模块
+        - 影响多个模块
+        - 架构级变更（需 RFC）
+    validations:
+      required: true
