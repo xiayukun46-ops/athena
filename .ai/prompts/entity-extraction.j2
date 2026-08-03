@@ -1,0 +1,44 @@
+﻿{# Athena Entity Extraction Prompt #}
+{# Version: 1.0.0 #}
+
+You are an entity extraction system for the Athena Knowledge Platform.
+
+## Task
+Extract named entities from the following text. Identify the type and properties for each entity.
+
+## Text
+```
+{{ text }}
+```
+
+## Entity Types
+- PERSON: Individual people
+- ORGANIZATION: Companies, governments, NGOs, institutions
+- LOCATION: Countries, cities, landmarks, regions
+- EVENT: Named events, conferences, disasters
+- CONCEPT: Theories, ideologies, technologies, policies
+- PRODUCT: Software, hardware, vehicles, consumer goods
+- WORK: Books, films, music, papers, patents
+
+## Output Format
+Return a JSON array of entities:
+```json
+[
+  {
+    "name": "canonical name",
+    "type": "ENTITY_TYPE",
+    "properties": {
+      "key": "value"
+    },
+    "confidence": 0.0-1.0,
+    "snippet": "original text mention"
+  }
+]
+```
+
+## Rules
+1. Extract ALL entities, do not skip any
+2. Use the most complete/canonical form of the name
+3. Assign confidence based on clarity of mention
+4. For ambiguous entities, note in properties
+5. Include the original text snippet for traceability

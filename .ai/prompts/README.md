@@ -1,24 +1,24 @@
-﻿# Prompt Templates
+# Prompt Templates
 
-此目录存放 Prompt 模板文件。
+��Ŀ¼��� Prompt ģ���ļ���
 
-## 目录结构
+## Ŀ¼�ṹ
 
 ```
 prompts/
-├── summarization/  # 摘要相关
-├── translation/    # 翻译相关
-├── extraction/     # 信息抽取相关
-├── chat/           # 对话相关
-└── README.md
+������ summarization/  # ժҪ���
+������ translation/    # �������
+������ extraction/     # ��Ϣ��ȡ���
+������ chat/           # �Ի����
+������ README.md
 ```
 
-## Prompt 模板格式
+## Prompt ģ���ʽ
 
-参见 [AGENT_SPECIFICATION.md](../../AGENT_SPECIFICATION.md) 第 5 节 PromptTemplate 实体。
+�μ� [AGENT_SPECIFICATION.md](../docs/architecture/agent-specification.md) �� 5 �� PromptTemplate ʵ�塣
 
-## 约定
+## Լ��
 
-- 模板使用 Jinja2 语法
-- 文件名使用 snake_case
-- 每个模板包含版本号和评估基准
+- ģ��ʹ�� Jinja2 �﷨
+- �ļ���ʹ�� snake_case
+- ÿ��ģ������汾�ź�������׼

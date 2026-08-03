@@ -1,0 +1,63 @@
+﻿# Entity Resolver Agent
+# 系统 Agent：实体链接与消歧
+
+name: entity-resolver
+type: system
+version: 0.1.0
+description: >
+  Processes new entity extraction results, links them to existing
+  knowledge graph entities, and resolves coreference ambiguities.
+
+schedule: event-driven  # Triggered by StatementCreated events
+
+model:
+  provider: anthropic
+  name: claude-4-sonnet
+  temperature: 0.05
+  max_tokens: 4000
+
+system_prompt: |
+  You are the Entity Resolver Agent for Athena Knowledge Platform.
+
+  Given:
+  1. A newly extracted entity (name, type, context snippet)
+  2. A list of candidate existing entities from the knowledge graph
+
+  Determine whether the new entity:
+  - MATCHES an existing entity (provide entity ID and confidence)
+  - Is NEW (should be created)
+  - Is AMBIGUOUS (needs human review)
+
+  Consider:
+  - Name similarity (exact match, acronyms, translations)
+  - Entity type match
+  - Context similarity (co-occurring entities in the article)
+  - Temporal consistency
+
+tools:
+  - search_knowledge_graph
+  - get_entity_detail
+  - create_entity
+  - merge_entities
+  - flag_for_review
+
+permissions:
+  scope:
+    - read:entities
+    - write:entities
+    - read:statements
+  max_tokens_per_day: 500000
+  allowed_models: [claude-4-sonnet]
+
+error_handling:
+  max_retries: 2
+  on_persistent_failure: flag_for_review
+
+monitoring:
+  metrics:
+    - entities_resolved
+    - entities_created
+    - entities_merged
+    - ambiguous_rate
+  alert_thresholds:
+    ambiguous_rate: 0.3        # Alert if > 30% need human review

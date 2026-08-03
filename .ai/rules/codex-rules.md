@@ -6,7 +6,7 @@
 
 ## Principles
 
-你必须遵守 [PROJECT_CONSTITUTION.md](../../PROJECT_CONSTITUTION.md) 中定义的八个核心原则：
+你必须遵守 [Project Constitution](docs/governance/constitution.md) 中定义的八个核心原则：
 
 1. **Documentation First**: 修改代码前确保文档已更新
 2. **Architecture First**: 遵守已建立的架构约束和模块边界
@@ -28,9 +28,9 @@
 
 ### 编辑代码时
 
-1. 遵守 [CODING_STANDARD.md](../../CODING_STANDARD.md)
+1. 遵守 [Coding Standard](docs/governance/coding-standard.md)
 2. 保持模块边界清晰
-3. 添加必要的测试
+3. 添加必要的测试（遵循 [Testing Strategy](docs/guides/testing-strategy.md)）
 4. 确保 CI 检查通过
 
 ### 提交时
@@ -48,8 +48,13 @@
 
 ## References
 
-- 项目根目录的所有 `.md` 文件
-- `docs/adr/` — 架构决策记录
-- `docs/rfc/` — 设计提案
-- `docs/architecture/overview.md` — 架构总览
-- `docs/domain/domain-model.md` — 领域模型
+- [Documentation Index](docs/README.md)
+- [Project Constitution](docs/governance/constitution.md)
+- [Coding Standard](docs/governance/coding-standard.md)
+- [Architecture Overview](docs/architecture/overview.md)
+- [Domain Model](docs/domain/domain-model.md)
+- [Knowledge Model](docs/domain/knowledge-model.md)
+- [DDD Detailed](docs/domain/ddd-detailed.md)
+- [Security Architecture](docs/architecture/security.md)
+- [ADR Directory](docs/adr/)
+- [RFC Directory](docs/rfc/)

@@ -29,7 +29,7 @@ Athena 致力于构建一个以 AI 为核心的知识基础设施，将全球多
 
 ## 架构原则
 
-遵循 **八个优先** 原则（详见 [PROJECT_CONSTITUTION.md](PROJECT_CONSTITUTION.md)）：
+遵循 **八个优先** 原则（详见 [Project Constitution](docs/governance/constitution.md)）：
 
 | # | 原则 | 说明 |
 |---|------|------|
@@ -48,30 +48,36 @@ Athena 致力于构建一个以 AI 为核心的知识基础设施，将全球多
 
 ```
 athena/
-├── .ai/                  # AI Agent 与 Prompt 管理
-│   ├── agents/           # Agent 定义
-│   ├── prompts/          # Prompt 模板
-│   └── rules/            # AI 行为规则
-├── .github/              # GitHub 配置
-│   └── workflows/        # CI/CD
-├── docs/                 # 文档
-│   ├── adr/              # 架构决策记录
-│   ├── rfc/              # 设计提案
-│   ├── architecture/     # 架构设计
-│   ├── domain/           # 领域模型
-│   ├── api/              # API 设计
-│   └── database/         # 数据库设计
-├── src/                  # 源代码（待实现）
-├── plugins/              # 插件（待实现）
-├── tests/                # 测试（待实现）
-└── PROJECT_CONSTITUTION.md  # 项目宪法
+├── .ai/                      # AI Agent 与 Prompt 管理
+│   ├── agents/               # Agent 定义（YAML）
+│   ├── prompts/              # Prompt 模板（Jinja2）
+│   └── rules/                # Codex AI 行为规则
+├── .github/                  # GitHub CI/CD + Issue 模板
+├── docs/                     # 全部项目文档
+│   ├── governance/           # 治理：宪法、编码规范
+│   ├── architecture/         # 架构：总览、安全、插件、Agent
+│   ├── domain/               # 领域：DDD、知识模型、图模型、事件模型
+│   ├── api/                  # API 设计
+│   ├── database/             # 数据库 ER 图
+│   ├── product/              # 产品路线图
+│   ├── guides/               # 开发指南
+│   ├── adr/                  # 架构决策记录
+│   ├── rfc/                  # 设计提案
+│   └── README.md             # 文档索引
+├── src/                      # 源代码（Phase 1+）
+├── plugins/                  # 插件（Phase 2+）
+├── tests/                    # 测试（Phase 1+）
+├── README.md                 # 本文件
+├── CONTRIBUTING.md           # 贡献指南
+├── LICENSE                   # Apache 2.0
+└── CODEOWNERS                # 代码所有权
 ```
 
 ---
 
 ## 快速开始
 
-> 当前处于架构设计阶段，暂无运行时代码。
+> Phase 0：架构设计阶段。完整文档见 [docs/README.md](docs/README.md)。
 
 ```bash
 # 克隆仓库
@@ -79,9 +85,24 @@ git clone https://github.com/your-org/athena.git
 cd athena
 
 # 阅读文档
-cat PROJECT_CONSTITUTION.md
+cat docs/README.md
+cat docs/governance/constitution.md
 cat docs/architecture/overview.md
 ```
+
+---
+
+## 文档导航
+
+| 想了解 | 从这里开始 |
+|--------|-----------|
+| 项目为什么这样设计 | [Project Constitution](docs/governance/constitution.md) |
+| 系统整体架构 | [Architecture Overview](docs/architecture/overview.md) |
+| 知识如何表示 | [Knowledge Model](docs/domain/knowledge-model.md) |
+| 数据库怎么设计 | [ER Diagram](docs/database/er-diagram.md) |
+| API 怎么调用 | [API Design](docs/api/api-design.md) |
+| 如何贡献 | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| 路线图 | [Development Roadmap](docs/product/roadmap.md) |
 
 ---
 
@@ -90,12 +111,6 @@ cat docs/architecture/overview.md
 请参阅 [CONTRIBUTING.md](CONTRIBUTING.md) 了解贡献流程、编码规范和社区准则。
 
 所有贡献者必须签署 DCO（Developer Certificate of Origin）。
-
----
-
-## 路线图
-
-参见 [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)
 
 ---
 

@@ -1,0 +1,69 @@
+﻿# Content Ingestion Agent
+# 系统 Agent：持续拉取和处理新内容
+
+name: content-ingestor
+type: system
+version: 0.1.0
+description: >
+  Periodically fetches new content from all active sources,
+  cleans and normalizes the content, detects duplicates,
+  and publishes articles to the platform.
+
+schedule: "*/5 * * * *"  # Every 5 minutes
+
+model:
+  provider: openai
+  name: gpt-5-mini
+  temperature: 0.1
+  max_tokens: 2000
+
+system_prompt: |
+  You are the Content Ingestion Agent for Athena Knowledge Platform.
+
+  Your responsibilities:
+  1. Fetch new articles from all active content sources
+  2. Clean HTML content and extract main text
+  3. Detect and filter duplicate articles
+  4. Detect article language
+  5. Categorize articles into relevant topics
+  6. Publish valid articles to the platform
+
+  For each article, determine:
+  - Is this a duplicate? (check URL hash against existing)
+  - What is the primary language?
+  - What categories does it belong to?
+  - Is the content quality acceptable? (word count > 100, not just ads/navigation)
+
+tools:
+  - fetch_rss_feed
+  - fetch_api_source
+  - clean_html_content
+  - detect_language
+  - categorize_content
+  - check_duplicate
+  - publish_article
+  - log_ingestion_metrics
+
+permissions:
+  scope:
+    - read:sources
+    - write:articles
+    - read:articles
+  max_tokens_per_day: 1000000
+  allowed_models: [gpt-5-mini]
+
+error_handling:
+  max_retries: 3
+  retry_delay_seconds: 60
+  on_persistent_failure: pause_source_and_alert
+
+monitoring:
+  metrics:
+    - articles_fetched
+    - articles_published
+    - duplicates_detected
+    - processing_latency_ms
+  alert_thresholds:
+    duplicate_rate: 0.5        # Alert if > 50% are duplicates
+    failure_rate: 0.1          # Alert if > 10% fail
+    latency_p99_ms: 30000      # Alert if P99 > 30s

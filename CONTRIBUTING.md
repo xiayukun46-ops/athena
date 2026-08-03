@@ -22,7 +22,7 @@
 
 ### 提出功能建议
 
-1. 检查 [Roadmap](DEVELOPMENT_ROADMAP.md) 和已有 [RFCs](docs/rfc/)
+1. 检查 [Roadmap](docs/product/roadmap.md) 和已有 [RFCs](docs/rfc/)
 2. 如果未覆盖，创建 Feature Request Issue
 3. 重大功能需先通过 RFC 流程
 
@@ -40,7 +40,8 @@ git checkout -b feature/{issue-number}-{brief-description}
 
 #### 第三步：遵循编码规范
 
-- 阅读 [CODING_STANDARD.md](CODING_STANDARD.md)
+- 阅读 [Coding Standard](docs/governance/coding-standard.md)
+- 阅读 [Testing Strategy](docs/guides/testing-strategy.md)
 - 运行 Lint 和类型检查
 - 编写测试
 
@@ -74,29 +75,16 @@ pnpm lint && pnpm typecheck && pnpm test
 
 ### 前置条件
 
-- Python 3.12+
-- Node.js 22 LTS
-- Docker & Docker Compose
-- uv（Python 包管理）
-- pnpm（Node.js 包管理）
+详见 [Environment Setup Guide](docs/guides/environment-setup.md)。
 
-### 环境搭建
+### 快速搭建
 
 ```bash
-# 1. 克隆仓库
 git clone https://github.com/your-org/athena.git
 cd athena
-
-# 2. Python 环境
-uv sync
-
-# 3. Node.js 环境
-pnpm install
-
-# 4. 启动依赖服务
 docker compose up -d
-
-# 5. 初始化数据库
+uv sync
+pnpm install
 uv run alembic upgrade head
 ```
 
@@ -130,7 +118,6 @@ Signed-off-by: Your Name <your.email@example.com>
 ## 沟通渠道
 
 - **架构讨论**：[GitHub Discussions](https://github.com/your-org/athena/discussions)
-- **日常交流**：待定（Slack / Discord）
 - **RFC 评审**：[docs/rfc/](docs/rfc/)
 
 ---

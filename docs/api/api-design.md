@@ -1,41 +1,41 @@
-ï»¿# API Design v2.0
+# API Design v2.0
 
-## æ¦‚è¿°
+## ¸ÅÊö
 
-Athena æä¾›ä¸¤å¥— API èŒƒå¼ï¼š
-- **RESTful API**: èµ„æº CRUDã€æœç´¢ã€AI ä»»åŠ¡
-- **GraphQL API**: çµæ´»çš„çŸ¥è¯†å›¾è°±æŸ¥è¯¢ã€å¤åˆæ•°æ®è·å–
+Athena Ìá¹©Á½Ì× API ·¶Ê½£º
+- **RESTful API**: ×ÊÔ´ CRUD¡¢ËÑË÷¡¢AI ÈÎÎñ
+- **GraphQL API**: Áé»îµÄÖªÊ¶Í¼Æ×²éÑ¯¡¢¸´ºÏÊı¾İ»ñÈ¡
 
-æ‰€æœ‰ API éµå¾ª [API Style Guide](../../API_STYLE_GUIDE.md) çš„çº¦å®šã€‚
+ËùÓĞ API ×ñÑ­ [API Style Guide](../guides/api-style-guide.md) µÄÔ¼¶¨¡£
 
 ---
 
-## 1. åŸºç¡€çº¦å®š
+## 1. »ù´¡Ô¼¶¨
 
-### 1.1 URL å‰ç¼€
+### 1.1 URL Ç°×º
 
 ```
 https://api.athena.ai/v1
 ```
 
-### 1.2 è®¤è¯
+### 1.2 ÈÏÖ¤
 
 ```http
 Authorization: Bearer {jwt_token}
-X-API-Key: {api_key}           # æœåŠ¡é—´è°ƒç”¨
+X-API-Key: {api_key}           # ·şÎñ¼äµ÷ÓÃ
 ```
 
-### 1.3 é€šç”¨è¯·æ±‚å¤´
+### 1.3 Í¨ÓÃÇëÇóÍ·
 
 ```http
 Content-Type: application/json
 Accept: application/json
 Accept-Language: zh-CN
 X-Request-ID: {uuid}
-X-Idempotency-Key: {key}       # å†™æ“ä½œå¹‚ç­‰
+X-Idempotency-Key: {key}       # Ğ´²Ù×÷ÃİµÈ
 ```
 
-### 1.4 é€šç”¨å“åº”æ ¼å¼
+### 1.4 Í¨ÓÃÏìÓ¦¸ñÊ½
 
 ```json
 {
@@ -55,7 +55,7 @@ X-Idempotency-Key: {key}       # å†™æ“ä½œå¹‚ç­‰
 }
 ```
 
-### 1.5 é”™è¯¯å“åº”
+### 1.5 ´íÎóÏìÓ¦
 
 ```json
 {
@@ -76,20 +76,20 @@ X-Idempotency-Key: {key}       # å†™æ“ä½œå¹‚ç­‰
 
 ## 2. Content API
 
-### 2.1 Sourcesï¼ˆå†…å®¹æºï¼‰
+### 2.1 Sources£¨ÄÚÈİÔ´£©
 
 ```
-GET    /v1/sources                           # åˆ—è¡¨å†…å®¹æº
-GET    /v1/sources/{source_id}               # å†…å®¹æºè¯¦æƒ…
-POST   /v1/sources                           # æ³¨å†Œæ–°å†…å®¹æº
-PUT    /v1/sources/{source_id}               # æ›´æ–°å†…å®¹æº
-DELETE /v1/sources/{source_id}               # åˆ é™¤å†…å®¹æº
-POST   /v1/sources/{source_id}/pause         # æš‚åœ
-POST   /v1/sources/{source_id}/resume        # æ¢å¤
-POST   /v1/sources/{source_id}/fetch         # æ‰‹åŠ¨è§¦å‘æŠ“å–
+GET    /v1/sources                           # ÁĞ±íÄÚÈİÔ´
+GET    /v1/sources/{source_id}               # ÄÚÈİÔ´ÏêÇé
+POST   /v1/sources                           # ×¢²áĞÂÄÚÈİÔ´
+PUT    /v1/sources/{source_id}               # ¸üĞÂÄÚÈİÔ´
+DELETE /v1/sources/{source_id}               # É¾³ıÄÚÈİÔ´
+POST   /v1/sources/{source_id}/pause         # ÔİÍ£
+POST   /v1/sources/{source_id}/resume        # »Ö¸´
+POST   /v1/sources/{source_id}/fetch         # ÊÖ¶¯´¥·¢×¥È¡
 ```
 
-**POST /v1/sources â€” è¯·æ±‚ä½“**:
+**POST /v1/sources ¡ª ÇëÇóÌå**:
 ```json
 {
   "name": "TechCrunch RSS",
@@ -104,36 +104,36 @@ POST   /v1/sources/{source_id}/fetch         # æ‰‹åŠ¨è§¦å‘æŠ“å–
 }
 ```
 
-**GET /v1/sources â€” æŸ¥è¯¢å‚æ•°**:
+**GET /v1/sources ¡ª ²éÑ¯²ÎÊı**:
 ```
 ?type=rss&language=en&status=active&page=1&size=20&sort=-created_at
 ```
 
-### 2.2 Articlesï¼ˆæ–‡ç« ï¼‰
+### 2.2 Articles£¨ÎÄÕÂ£©
 
 ```
-GET    /v1/articles                           # æ–‡ç« åˆ—è¡¨
-GET    /v1/articles/{article_id}              # æ–‡ç« è¯¦æƒ…ï¼ˆå«å…¨æ–‡ï¼‰
-GET    /v1/articles/{article_id}/related      # å…³è”æ–‡ç« 
-GET    /v1/articles/{article_id}/entities     # æ–‡ç« ä¸­çš„å®ä½“
-GET    /v1/articles/{article_id}/statements   # æ–‡ç« äº§ç”Ÿçš„å£°æ˜
-DELETE /v1/articles/{article_id}              # è½¯åˆ é™¤
+GET    /v1/articles                           # ÎÄÕÂÁĞ±í
+GET    /v1/articles/{article_id}              # ÎÄÕÂÏêÇé£¨º¬È«ÎÄ£©
+GET    /v1/articles/{article_id}/related      # ¹ØÁªÎÄÕÂ
+GET    /v1/articles/{article_id}/entities     # ÎÄÕÂÖĞµÄÊµÌå
+GET    /v1/articles/{article_id}/statements   # ÎÄÕÂ²úÉúµÄÉùÃ÷
+DELETE /v1/articles/{article_id}              # ÈíÉ¾³ı
 ```
 
-**GET /v1/articles â€” æŸ¥è¯¢å‚æ•°**:
+**GET /v1/articles ¡ª ²éÑ¯²ÎÊı**:
 ```
-?source_id=...         # æŒ‰æºç­›é€‰
-&status=published      # æŒ‰çŠ¶æ€ç­›é€‰
-&language=zh           # æŒ‰è¯­è¨€ç­›é€‰
-&category=AI           # æŒ‰åˆ†ç±»ç­›é€‰
-&from=2026-01-01       # å‘å¸ƒèµ·å§‹æ—¶é—´
-&to=2026-12-31         # å‘å¸ƒç»“æŸæ—¶é—´
-&sort=-published_at    # æ’åºï¼ˆ- é™åºï¼‰
-&page=1&size=20        # åˆ†é¡µ
-&fields=title,summary,published_at  # ç¨€ç–å­—æ®µ
+?source_id=...         # °´Ô´É¸Ñ¡
+&status=published      # °´×´Ì¬É¸Ñ¡
+&language=zh           # °´ÓïÑÔÉ¸Ñ¡
+&category=AI           # °´·ÖÀàÉ¸Ñ¡
+&from=2026-01-01       # ·¢²¼ÆğÊ¼Ê±¼ä
+&to=2026-12-31         # ·¢²¼½áÊøÊ±¼ä
+&sort=-published_at    # ÅÅĞò£¨- ½µĞò£©
+&page=1&size=20        # ·ÖÒ³
+&fields=title,summary,published_at  # Ï¡Êè×Ö¶Î
 ```
 
-**å“åº”ç¤ºä¾‹**:
+**ÏìÓ¦Ê¾Àı**:
 ```json
 {
   "data": [
@@ -175,32 +175,32 @@ DELETE /v1/articles/{article_id}              # è½¯åˆ é™¤
 
 ## 3. Knowledge API
 
-### 3.1 Entitiesï¼ˆçŸ¥è¯†å®ä½“ï¼‰
+### 3.1 Entities£¨ÖªÊ¶ÊµÌå£©
 
 ```
-GET    /v1/entities                           # å®ä½“æœç´¢/åˆ—è¡¨
-GET    /v1/entities/{entity_id}               # å®ä½“è¯¦æƒ…
-POST   /v1/entities                           # æ‰‹åŠ¨åˆ›å»ºå®ä½“
-PUT    /v1/entities/{entity_id}               # æ›´æ–°å®ä½“
-POST   /v1/entities/{entity_id}/merge         # åˆå¹¶å®ä½“
-POST   /v1/entities/{entity_id}/deprecate     # åºŸå¼ƒå®ä½“
-GET    /v1/entities/{entity_id}/timeline      # å®ä½“æ—¶é—´çº¿
-GET    /v1/entities/{entity_id}/relations     # å®ä½“çš„å…³ç³»åˆ—è¡¨
-GET    /v1/entities/{entity_id}/statements    # å®ä½“çš„å£°æ˜åˆ—è¡¨
+GET    /v1/entities                           # ÊµÌåËÑË÷/ÁĞ±í
+GET    /v1/entities/{entity_id}               # ÊµÌåÏêÇé
+POST   /v1/entities                           # ÊÖ¶¯´´½¨ÊµÌå
+PUT    /v1/entities/{entity_id}               # ¸üĞÂÊµÌå
+POST   /v1/entities/{entity_id}/merge         # ºÏ²¢ÊµÌå
+POST   /v1/entities/{entity_id}/deprecate     # ·ÏÆúÊµÌå
+GET    /v1/entities/{entity_id}/timeline      # ÊµÌåÊ±¼äÏß
+GET    /v1/entities/{entity_id}/relations     # ÊµÌåµÄ¹ØÏµÁĞ±í
+GET    /v1/entities/{entity_id}/statements    # ÊµÌåµÄÉùÃ÷ÁĞ±í
 ```
 
-**GET /v1/entities â€” æŸ¥è¯¢å‚æ•°**:
+**GET /v1/entities ¡ª ²éÑ¯²ÎÊı**:
 ```
-?q=Apple               # æ¨¡ç³Šæœç´¢ï¼ˆåç§°/åˆ«åï¼‰
-&type=organization     # å®ä½“ç±»å‹
-&language=en           # åç§°è¯­è¨€
-&status=active         # å®ä½“çŠ¶æ€
-&min_confidence=0.7    # æœ€å°ç½®ä¿¡åº¦
+?q=Apple               # Ä£ºıËÑË÷£¨Ãû³Æ/±ğÃû£©
+&type=organization     # ÊµÌåÀàĞÍ
+&language=en           # Ãû³ÆÓïÑÔ
+&status=active         # ÊµÌå×´Ì¬
+&min_confidence=0.7    # ×îĞ¡ÖÃĞÅ¶È
 &page=1&size=20
 &sort=-created_at
 ```
 
-**GET /v1/entities/{entity_id} â€” å“åº”**:
+**GET /v1/entities/{entity_id} ¡ª ÏìÓ¦**:
 ```json
 {
   "data": {
@@ -211,8 +211,8 @@ GET    /v1/entities/{entity_id}/statements    # å®ä½“çš„å£°æ˜åˆ—è¡¨
       "entity_type": "organization",
       "names": [
         {"name": "Apple Inc.", "language": "en", "is_preferred": true},
-        {"name": "è‹¹æœå…¬å¸", "language": "zh", "is_preferred": true},
-        {"name": "ã‚¢ãƒƒãƒ—ãƒ«", "language": "ja"}
+        {"name": "Æ»¹û¹«Ë¾", "language": "zh", "is_preferred": true},
+        {"name": "¥¢¥Ã¥×¥ë", "language": "ja"}
       ],
       "aliases": [
         {"alias": "AAPL", "alias_type": "acronym"},
@@ -246,23 +246,23 @@ GET    /v1/entities/{entity_id}/statements    # å®ä½“çš„å£°æ˜åˆ—è¡¨
 }
 ```
 
-### 3.2 Relationsï¼ˆå…³ç³»ï¼‰
+### 3.2 Relations£¨¹ØÏµ£©
 
 ```
-GET    /v1/relations/{relation_id}            # å…³ç³»è¯¦æƒ…
-GET    /v1/entities/{entity_id}/relations     # å®ä½“çš„æ‰€æœ‰å…³ç³»
-POST   /v1/relations/{relation_id}/deprecate  # åºŸå¼ƒå…³ç³»
+GET    /v1/relations/{relation_id}            # ¹ØÏµÏêÇé
+GET    /v1/entities/{entity_id}/relations     # ÊµÌåµÄËùÓĞ¹ØÏµ
+POST   /v1/relations/{relation_id}/deprecate  # ·ÏÆú¹ØÏµ
 ```
 
-**GET /v1/entities/{entity_id}/relations â€” æŸ¥è¯¢å‚æ•°**:
+**GET /v1/entities/{entity_id}/relations ¡ª ²éÑ¯²ÎÊı**:
 ```
-?type=WORKS_FOR,LOCATED_IN   # å…³ç³»ç±»å‹è¿‡æ»¤
+?type=WORKS_FOR,LOCATED_IN   # ¹ØÏµÀàĞÍ¹ıÂË
 &direction=outgoing          # outgoing | incoming | both
 &sort=-confidence
 &page=1&size=20
 ```
 
-**å“åº”**:
+**ÏìÓ¦**:
 ```json
 {
   "data": [
@@ -286,16 +286,16 @@ POST   /v1/relations/{relation_id}/deprecate  # åºŸå¼ƒå…³ç³»
 }
 ```
 
-### 3.3 Statementsï¼ˆå£°æ˜ï¼‰
+### 3.3 Statements£¨ÉùÃ÷£©
 
 ```
-GET    /v1/statements                         # å£°æ˜åˆ—è¡¨ï¼ˆæŒ‰å®¡æ ¸çŠ¶æ€ï¼‰
-GET    /v1/statements/{statement_id}          # å£°æ˜è¯¦æƒ…ï¼ˆå«åŸæ–‡æ‘˜å½•ï¼‰
-POST   /v1/statements/{statement_id}/approve  # å®¡æ ¸é€šè¿‡
-POST   /v1/statements/{statement_id}/reject   # å®¡æ ¸æ‹’ç»
+GET    /v1/statements                         # ÉùÃ÷ÁĞ±í£¨°´ÉóºË×´Ì¬£©
+GET    /v1/statements/{statement_id}          # ÉùÃ÷ÏêÇé£¨º¬Ô­ÎÄÕªÂ¼£©
+POST   /v1/statements/{statement_id}/approve  # ÉóºËÍ¨¹ı
+POST   /v1/statements/{statement_id}/reject   # ÉóºË¾Ü¾ø
 ```
 
-**GET /v1/statements â€” æŸ¥è¯¢å‚æ•°**:
+**GET /v1/statements ¡ª ²éÑ¯²ÎÊı**:
 ```
 ?review_status=pending   # pending | approved | rejected
 &statement_type=entity_extraction
@@ -312,23 +312,23 @@ POST   /v1/statements/{statement_id}/reject   # å®¡æ ¸æ‹’ç»
 
 ---
 
-## 4. Graph APIï¼ˆå›¾æŸ¥è¯¢ï¼‰
+## 4. Graph API£¨Í¼²éÑ¯£©
 
-### 4.1 ç«¯ç‚¹
+### 4.1 ¶Ëµã
 
 ```
-GET    /v1/graph/entity/{entity_id}/neighbors  # é‚»å±…èŠ‚ç‚¹
-GET    /v1/graph/entity/{entity_id}/subgraph   # å­å›¾
-GET    /v1/graph/paths                          # è·¯å¾„æŸ¥è¯¢
-GET    /v1/graph/trending                      # è¶‹åŠ¿å®ä½“
-POST   /v1/graph/query                         # è‡ªå®šä¹‰ Cypherï¼ˆç®¡ç†å‘˜ï¼‰
+GET    /v1/graph/entity/{entity_id}/neighbors  # ÁÚ¾Ó½Úµã
+GET    /v1/graph/entity/{entity_id}/subgraph   # ×ÓÍ¼
+GET    /v1/graph/paths                          # Â·¾¶²éÑ¯
+GET    /v1/graph/trending                      # Ç÷ÊÆÊµÌå
+POST   /v1/graph/query                         # ×Ô¶¨Òå Cypher£¨¹ÜÀíÔ±£©
 ```
 
 **GET /v1/graph/entity/{entity_id}/neighbors**:
 ```
-?types=WORKS_FOR,LOCATED_IN   # å…³ç³»ç±»å‹
+?types=WORKS_FOR,LOCATED_IN   # ¹ØÏµÀàĞÍ
 &direction=outgoing           # outgoing | incoming | both
-&depth=1                      # é‚»å±…æ·±åº¦ï¼ˆ1-3ï¼‰
+&depth=1                      # ÁÚ¾ÓÉî¶È£¨1-3£©
 &limit=50
 ```
 
@@ -342,13 +342,13 @@ POST   /v1/graph/query                         # è‡ªå®šä¹‰ Cypherï¼ˆç®¡ç†å‘˜ï¼‰
 
 **GET /v1/graph/trending**:
 ```
-?window=24h                  # æ—¶é—´çª—å£
+?window=24h                  # Ê±¼ä´°¿Ú
 &entity_type=person
-&type=mentions               # mentionsï¼ˆæ–‡ç« æåŠï¼‰| relationsï¼ˆå…³ç³»å¢åŠ ï¼‰
+&type=mentions               # mentions£¨ÎÄÕÂÌá¼°£©| relations£¨¹ØÏµÔö¼Ó£©
 &limit=20
 ```
 
-**POST /v1/graph/query** (ç®¡ç†å‘˜):
+**POST /v1/graph/query** (¹ÜÀíÔ±):
 ```json
 {
   "cypher": "MATCH (p:Person)-[:WORKS_FOR]->(o:Organization {name: $org_name}) RETURN p.name, o.name",
@@ -361,12 +361,12 @@ POST   /v1/graph/query                         # è‡ªå®šä¹‰ Cypherï¼ˆç®¡ç†å‘˜ï¼‰
 
 ## 5. Search API
 
-### 5.1 æœç´¢ç«¯ç‚¹
+### 5.1 ËÑË÷¶Ëµã
 
 ```
-GET    /v1/search                              # ç»Ÿä¸€æœç´¢
-GET    /v1/search/autocomplete                 # æœç´¢è‡ªåŠ¨è¡¥å…¨
-GET    /v1/search/suggestions                  # æœç´¢å»ºè®®
+GET    /v1/search                              # Í³Ò»ËÑË÷
+GET    /v1/search/autocomplete                 # ËÑË÷×Ô¶¯²¹È«
+GET    /v1/search/suggestions                  # ËÑË÷½¨Òé
 ```
 
 **GET /v1/search**:
@@ -374,16 +374,16 @@ GET    /v1/search/suggestions                  # æœç´¢å»ºè®®
 ?q=AI protein folding
 &mode=hybrid                  # fulltext | vector | hybrid
 &language=en
-&types=article,entity         # æœç´¢ç±»å‹
-&filters.category=Science     # è¿‡æ»¤å™¨
+&types=article,entity         # ËÑË÷ÀàĞÍ
+&filters.category=Science     # ¹ıÂËÆ÷
 &filters.date_from=2026-01-01
-&filters.entity_type=person   # ä»…å®ä½“æœç´¢æ—¶
-&sort=-score                  # -scoreï¼ˆç›¸å…³æ€§ï¼‰| -published_atï¼ˆæ—¶é—´ï¼‰
+&filters.entity_type=person   # ½öÊµÌåËÑË÷Ê±
+&sort=-score                  # -score£¨Ïà¹ØĞÔ£©| -published_at£¨Ê±¼ä£©
 &page=1&size=20
-&highlight=true               # é«˜äº®
+&highlight=true               # ¸ßÁÁ
 ```
 
-**å“åº”**:
+**ÏìÓ¦**:
 ```json
 {
   "data": [
@@ -439,7 +439,7 @@ GET    /v1/search/suggestions                  # æœç´¢å»ºè®®
 &limit=5
 ```
 
-**å“åº”**:
+**ÏìÓ¦**:
 ```json
 {
   "data": [
@@ -454,15 +454,15 @@ GET    /v1/search/suggestions                  # æœç´¢å»ºè®®
 
 ## 6. AI API
 
-### 6.1 AI ä»»åŠ¡
+### 6.1 AI ÈÎÎñ
 
 ```
-POST   /v1/ai/summarize                       # ç”Ÿæˆæ‘˜è¦
-POST   /v1/ai/translate                       # æ–‡æœ¬ç¿»è¯‘
-POST   /v1/ai/extract/entities                # å®ä½“æå–
-POST   /v1/ai/extract/relations               # å…³ç³»æå–
-POST   /v1/ai/chat                            # çŸ¥è¯†é—®ç­”
-GET    /v1/ai/tasks/{task_id}                 # ä»»åŠ¡çŠ¶æ€æŸ¥è¯¢
+POST   /v1/ai/summarize                       # Éú³ÉÕªÒª
+POST   /v1/ai/translate                       # ÎÄ±¾·­Òë
+POST   /v1/ai/extract/entities                # ÊµÌåÌáÈ¡
+POST   /v1/ai/extract/relations               # ¹ØÏµÌáÈ¡
+POST   /v1/ai/chat                            # ÖªÊ¶ÎÊ´ğ
+GET    /v1/ai/tasks/{task_id}                 # ÈÎÎñ×´Ì¬²éÑ¯
 ```
 
 **POST /v1/ai/summarize**:
@@ -476,7 +476,7 @@ GET    /v1/ai/tasks/{task_id}                 # ä»»åŠ¡çŠ¶æ€æŸ¥è¯¢
 }
 ```
 
-**å“åº”** (202 Accepted â€” å¼‚æ­¥):
+**ÏìÓ¦** (202 Accepted ¡ª Òì²½):
 ```json
 {
   "data": {
@@ -511,7 +511,7 @@ GET    /v1/ai/tasks/{task_id}                 # ä»»åŠ¡çŠ¶æ€æŸ¥è¯¢
 }
 ```
 
-**å“åº”**:
+**ÏìÓ¦**:
 ```json
 {
   "data": {
@@ -541,15 +541,15 @@ GET    /v1/ai/tasks/{task_id}                 # ä»»åŠ¡çŠ¶æ€æŸ¥è¯¢
 ## 7. User API
 
 ```
-POST   /v1/users/register                     # æ³¨å†Œ
-POST   /v1/users/login                        # ç™»å½•
-POST   /v1/users/refresh                      # åˆ·æ–° Token
-GET    /v1/users/me                           # å½“å‰ç”¨æˆ·ä¿¡æ¯
-PUT    /v1/users/me/preferences               # æ›´æ–°åå¥½
-GET    /v1/users/me/collections               # æ”¶è—åˆ—è¡¨
-POST   /v1/users/me/collections               # æ·»åŠ æ”¶è—
-DELETE /v1/users/me/collections/{article_id}  # å–æ¶ˆæ”¶è—
-GET    /v1/users/me/history                   # æµè§ˆå†å²
+POST   /v1/users/register                     # ×¢²á
+POST   /v1/users/login                        # µÇÂ¼
+POST   /v1/users/refresh                      # Ë¢ĞÂ Token
+GET    /v1/users/me                           # µ±Ç°ÓÃ»§ĞÅÏ¢
+PUT    /v1/users/me/preferences               # ¸üĞÂÆ«ºÃ
+GET    /v1/users/me/collections               # ÊÕ²ØÁĞ±í
+POST   /v1/users/me/collections               # Ìí¼ÓÊÕ²Ø
+DELETE /v1/users/me/collections/{article_id}  # È¡ÏûÊÕ²Ø
+GET    /v1/users/me/history                   # ä¯ÀÀÀúÊ·
 ```
 
 ---
@@ -557,12 +557,12 @@ GET    /v1/users/me/history                   # æµè§ˆå†å²
 ## 8. System API
 
 ```
-GET    /v1/health                             # å¥åº·æ£€æŸ¥
-GET    /v1/health/ready                       # å°±ç»ªæ£€æŸ¥
-GET    /v1/plugins                            # æ’ä»¶åˆ—è¡¨
-POST   /v1/plugins                            # å®‰è£…æ’ä»¶
-DELETE /v1/plugins/{plugin_id}               # å¸è½½æ’ä»¶
-GET    /v1/stats                              # ç³»ç»Ÿç»Ÿè®¡ï¼ˆç®¡ç†å‘˜ï¼‰
+GET    /v1/health                             # ½¡¿µ¼ì²é
+GET    /v1/health/ready                       # ¾ÍĞ÷¼ì²é
+GET    /v1/plugins                            # ²å¼şÁĞ±í
+POST   /v1/plugins                            # °²×°²å¼ş
+DELETE /v1/plugins/{plugin_id}               # Ğ¶ÔØ²å¼ş
+GET    /v1/stats                              # ÏµÍ³Í³¼Æ£¨¹ÜÀíÔ±£©
 ```
 
 **GET /v1/stats**:
@@ -586,17 +586,17 @@ GET    /v1/stats                              # ç³»ç»Ÿç»Ÿè®¡ï¼ˆç®¡ç†å‘˜ï¼‰
 
 ## 9. GraphQL API
 
-### 9.1 ç«¯ç‚¹
+### 9.1 ¶Ëµã
 
 ```
 POST /v1/graphql
 ```
 
-### 9.2 Schemaï¼ˆæ ¸å¿ƒéƒ¨åˆ†ï¼‰
+### 9.2 Schema£¨ºËĞÄ²¿·Ö£©
 
 ```graphql
 type Query {
-  # â”€â”€ å®ä½“æŸ¥è¯¢ â”€â”€
+  # ©¤©¤ ÊµÌå²éÑ¯ ©¤©¤
   entity(id: ID!): Entity
   entities(
     query: String
@@ -606,7 +606,7 @@ type Query {
     offset: Int = 0
   ): EntityConnection!
   
-  # â”€â”€ æ–‡ç« æŸ¥è¯¢ â”€â”€
+  # ©¤©¤ ÎÄÕÂ²éÑ¯ ©¤©¤
   article(id: ID!): Article
   articles(
     sourceId: ID
@@ -617,7 +617,7 @@ type Query {
     offset: Int = 0
   ): ArticleConnection!
   
-  # â”€â”€ å›¾æŸ¥è¯¢ â”€â”€
+  # ©¤©¤ Í¼²éÑ¯ ©¤©¤
   graphSubgraph(
     entityId: ID!
     depth: Int = 1
@@ -630,7 +630,7 @@ type Query {
     maxDepth: Int = 3
   ): [Path!]!
   
-  # â”€â”€ æœç´¢ â”€â”€
+  # ©¤©¤ ËÑË÷ ©¤©¤
   search(
     query: String!
     mode: SearchMode = hybrid
@@ -640,7 +640,7 @@ type Query {
     offset: Int = 0
   ): SearchResultConnection!
   
-  # â”€â”€ è¶‹åŠ¿ â”€â”€
+  # ©¤©¤ Ç÷ÊÆ ©¤©¤
   trending(
     window: TrendingWindow = LAST_24H
     entityType: EntityType
@@ -648,7 +648,7 @@ type Query {
   ): [TrendingEntity!]!
 }
 
-# â”€â”€ ç±»å‹å®šä¹‰ â”€â”€
+# ©¤©¤ ÀàĞÍ¶¨Òå ©¤©¤
 
 type Entity {
   id: ID!
@@ -664,19 +664,19 @@ type Entity {
   createdAt: DateTime!
   updatedAt: DateTime!
   
-  # å…³ç³»ï¼ˆæ‡’åŠ è½½ï¼‰
+  # ¹ØÏµ£¨ÀÁ¼ÓÔØ£©
   relations(
     types: [String]
     direction: RelationDirection = OUTGOING
     limit: Int = 20
   ): RelationConnection!
   
-  # ç›¸å…³æ–‡ç« 
+  # Ïà¹ØÎÄÕÂ
   articles(
     limit: Int = 20
   ): ArticleConnection!
   
-  # å­å›¾
+  # ×ÓÍ¼
   subgraph(depth: Int = 1): Subgraph!
 }
 
@@ -735,10 +735,10 @@ type Path {
 type TrendingEntity {
   entity: Entity!
   mentionCount: Int!
-  trend: Float!  # å¢é•¿ç‡
+  trend: Float!  # Ôö³¤ÂÊ
 }
 
-# â”€â”€ ç¤ºä¾‹æŸ¥è¯¢ â”€â”€
+# ©¤©¤ Ê¾Àı²éÑ¯ ©¤©¤
 # query {
 #   entity(id: "ent_apple") {
 #     canonicalName
@@ -766,15 +766,15 @@ type TrendingEntity {
 
 ## 10. Webhook API
 
-ç”¨äºç¬¬ä¸‰æ–¹ç³»ç»Ÿé›†æˆï¼š
+ÓÃÓÚµÚÈı·½ÏµÍ³¼¯³É£º
 
 ```
-POST   /v1/webhooks                           # æ³¨å†Œ Webhook
-GET    /v1/webhooks                           # åˆ—å‡º Webhook
-DELETE /v1/webhooks/{webhook_id}             # åˆ é™¤ Webhook
+POST   /v1/webhooks                           # ×¢²á Webhook
+GET    /v1/webhooks                           # ÁĞ³ö Webhook
+DELETE /v1/webhooks/{webhook_id}             # É¾³ı Webhook
 ```
 
-**Webhook æ³¨å†Œè¯·æ±‚**:
+**Webhook ×¢²áÇëÇó**:
 ```json
 {
   "url": "https://my-app.com/webhook/athena",
@@ -789,17 +789,17 @@ DELETE /v1/webhooks/{webhook_id}             # åˆ é™¤ Webhook
 
 ---
 
-## 11. é™æµç­–ç•¥
+## 11. ÏŞÁ÷²ßÂÔ
 
-| ç«¯ç‚¹ç»„ | åŒ¿å | æ³¨å†Œç”¨æˆ· | Pro | Enterprise |
+| ¶Ëµã×é | ÄäÃû | ×¢²áÓÃ»§ | Pro | Enterprise |
 |--------|------|---------|-----|------------|
-| è¯»æ“ä½œ (GET) | 100/min | 1000/min | 5000/min | 20000/min |
-| å†™æ“ä½œ (POST/PUT/DELETE) | 10/min | 100/min | 500/min | 2000/min |
-| AI æ“ä½œ (POST /ai/*) | 0 | 10/min | 50/min | 200/min |
-| å›¾æŸ¥è¯¢ (POST /graph/query) | 0 | 10/min | 50/min | 200/min |
+| ¶Á²Ù×÷ (GET) | 100/min | 1000/min | 5000/min | 20000/min |
+| Ğ´²Ù×÷ (POST/PUT/DELETE) | 10/min | 100/min | 500/min | 2000/min |
+| AI ²Ù×÷ (POST /ai/*) | 0 | 10/min | 50/min | 200/min |
+| Í¼²éÑ¯ (POST /graph/query) | 0 | 10/min | 50/min | 200/min |
 | Webhook | - | 5 | 20 | 100 |
 
-é™æµå“åº”å¤´:
+ÏŞÁ÷ÏìÓ¦Í·:
 ```http
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 987
@@ -809,4 +809,4 @@ Retry-After: 30
 
 ---
 
-*æœ¬æ–‡æ¡£ä¸º API å¥‘çº¦çš„æƒå¨å®šä¹‰ã€‚Phase 1 å®ç°æ—¶é€šè¿‡ OpenAPI 3.1 è§„èŒƒæ–‡ä»¶å…·ä½“åŒ–ã€‚*
+*±¾ÎÄµµÎª API ÆõÔ¼µÄÈ¨Íş¶¨Òå¡£Phase 1 ÊµÏÖÊ±Í¨¹ı OpenAPI 3.1 ¹æ·¶ÎÄ¼ş¾ßÌå»¯¡£*

@@ -1,26 +1,26 @@
-ï»¿# Agent Definitions
+# Agent Definitions
 
-æ­¤ç›®å½•å­˜æ”¾ Agent å®šä¹‰æ–‡ä»¶ã€‚
+´ËÄ¿Â¼´æ·Å Agent ¶¨ÒåÎÄ¼ş¡£
 
-## ç›®å½•ç»“æ„
+## Ä¿Â¼½á¹¹
 
 ```
 agents/
-â”œâ”€â”€ system/        # ç³»ç»Ÿ Agentï¼ˆå¹³å°è‡ªåŠ¨ç®¡ç†ï¼‰
-â”‚   â”œâ”€â”€ content-ingestor.yaml
-â”‚   â”œâ”€â”€ entity-resolver.yaml
-â”‚   â””â”€â”€ ...
-â”œâ”€â”€ personal/      # ä¸ªäºº Agentï¼ˆç”¨æˆ·åˆ›å»ºï¼‰
-â”‚   â””â”€â”€ research-assistant.yaml
-â””â”€â”€ README.md
+©À©¤©¤ system/        # ÏµÍ³ Agent£¨Æ½Ì¨×Ô¶¯¹ÜÀí£©
+©¦   ©À©¤©¤ content-ingestor.yaml
+©¦   ©À©¤©¤ entity-resolver.yaml
+©¦   ©¸©¤©¤ ...
+©À©¤©¤ personal/      # ¸öÈË Agent£¨ÓÃ»§´´½¨£©
+©¦   ©¸©¤©¤ research-assistant.yaml
+©¸©¤©¤ README.md
 ```
 
-## Agent å®šä¹‰æ ¼å¼
+## Agent ¶¨Òå¸ñÊ½
 
-å‚è§ [AGENT_SPECIFICATION.md](../../AGENT_SPECIFICATION.md) ç¬¬ 3 èŠ‚ã€‚
+²Î¼û [AGENT_SPECIFICATION.md](../docs/architecture/agent-specification.md) µÚ 3 ½Ú¡£
 
-## çº¦å®š
+## Ô¼¶¨
 
-- Agent å®šä¹‰ä½¿ç”¨ YAML æ ¼å¼
-- æ–‡ä»¶åä½¿ç”¨ kebab-case
-- æ¯ä¸ª Agent æ–‡ä»¶åŒ…å«å®Œæ•´çš„é…ç½®ï¼ˆmodel, prompt, tools, permissionsï¼‰
+- Agent ¶¨ÒåÊ¹ÓÃ YAML ¸ñÊ½
+- ÎÄ¼şÃûÊ¹ÓÃ kebab-case
+- Ã¿¸ö Agent ÎÄ¼ş°üº¬ÍêÕûµÄÅäÖÃ£¨model, prompt, tools, permissions£©

@@ -1,0 +1,26 @@
+﻿{# Athena Summarization Prompt Template #}
+{# Version: 1.0.0 #}
+{# Model: gpt-5, claude-4 #}
+
+You are an expert summarizer for the Athena Knowledge Platform.
+
+## Task
+Generate a concise summary of the following article in {{ target_language }}.
+
+## Article
+**Title**: {{ article.title }}
+**Source**: {{ article.source_name }}
+**Published**: {{ article.published_at }}
+**Language**: {{ article.language }}
+
+{{ article.content_clean }}
+
+## Instructions
+1. Write a {{ max_length }}-word summary in {{ target_language }}
+2. Capture the key points: who, what, when, where, why
+3. Maintain factual accuracy — do not add information not in the article
+4. Use neutral, objective tone
+5. If the article mentions specific entities (people, organizations, locations), include them
+
+## Output Format
+Return ONLY the summary text, no additional commentary.
