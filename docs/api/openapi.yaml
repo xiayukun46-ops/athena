@@ -1,0 +1,977 @@
+﻿openapi: "3.1.0"
+info:
+  title: Athena Knowledge Platform API
+  description: >
+    AI-driven global knowledge platform. Aggregates, understands, and connects
+    the world's information through structured knowledge graphs.
+  version: "0.1.0-dev"
+  contact:
+    name: Athena Team
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.athena.ai/v1
+    description: Production
+  - url: http://localhost:8000/v1
+    description: Local Development
+
+tags:
+  - name: Content
+    description: Content sources and articles
+  - name: Knowledge
+    description: Knowledge entities, relations, and statements
+  - name: Graph
+    description: Knowledge graph traversal and analysis
+  - name: Search
+    description: Full-text, vector, and hybrid search
+  - name: AI
+    description: AI tasks (summarize, translate, extract, chat)
+  - name: User
+    description: User accounts and preferences
+  - name: System
+    description: Health, plugins, and statistics
+
+# ── Security ──
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth 2.0 JWT Bearer Token
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Service-to-service API Key
+
+  # ── Common Parameters ──
+  parameters:
+    PaginationPage:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    PaginationSize:
+      name: size
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+    Language:
+      name: language
+      in: query
+      schema:
+        type: string
+        minLength: 2
+        maxLength: 10
+      description: ISO 639-1 language code
+    RequestId:
+      name: X-Request-ID
+      in: header
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: X-Idempotency-Key
+      in: header
+      schema:
+        type: string
+
+  # ── Common Schemas ──
+  schemas:
+    # ── Envelope ──
+    SingleResponse:
+      type: object
+      properties:
+        data:
+          type: object
+        _meta:
+          $ref: "#/components/schemas/Meta"
+        _links:
+          type: object
+      required: [data]
+
+    ListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+        _meta:
+          allOf:
+            - $ref: "#/components/schemas/Meta"
+            - type: object
+              properties:
+                total:
+                  type: integer
+                page:
+                  type: integer
+                size:
+                  type: integer
+                next_cursor:
+                  type: string
+        _links:
+          type: object
+      required: [data]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field: { type: string }
+                  issue: { type: string }
+                  value: { type: string }
+        _meta:
+          $ref: "#/components/schemas/Meta"
+
+    Meta:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        took_ms:
+          type: integer
+
+    # ── Content ──
+    Source:
+      type: object
+      properties:
+        id: { type: string, example: "src_a1b2c3d4" }
+        type: { type: string, example: "source" }
+        attributes:
+          type: object
+          properties:
+            name: { type: string }
+            source_type: { type: string, enum: [rss, api, scraper, manual] }
+            url: { type: string, format: uri }
+            language: { type: string }
+            fetch_interval_seconds: { type: integer }
+            status: { type: string, enum: [active, paused, error, deprecated] }
+            last_fetched_at: { type: string, format: date-time }
+            created_at: { type: string, format: date-time }
+
+    Article:
+      type: object
+      properties:
+        id: { type: string, example: "art_e5f6g7h8" }
+        type: { type: string, example: "article" }
+        attributes:
+          type: object
+          properties:
+            title: { type: string }
+            summary: { type: string }
+            url: { type: string, format: uri }
+            language: { type: string }
+            content_type: { type: string, enum: [article, paper, report, social_post, transcript] }
+            word_count: { type: integer }
+            reading_time_minutes: { type: integer }
+            published_at: { type: string, format: date-time }
+            categories: { type: array, items: { type: string } }
+            tags: { type: array, items: { type: string } }
+            status: { type: string, enum: [draft, published, archived, deleted] }
+
+    # ── Knowledge ──
+    Entity:
+      type: object
+      properties:
+        id: { type: string, example: "ent_i9j0k1l2" }
+        type: { type: string, example: "entity" }
+        attributes:
+          type: object
+          properties:
+            canonical_name: { type: string }
+            entity_type:
+              type: string
+              enum: [person, organization, location, event, concept, product, work, natural_entity]
+            names:
+              type: array
+              items:
+                type: object
+                properties:
+                  name: { type: string }
+                  language: { type: string }
+                  is_preferred: { type: boolean }
+            aliases:
+              type: array
+              items:
+                type: object
+                properties:
+                  alias: { type: string }
+                  alias_type: { type: string }
+            description: { type: string }
+            properties: { type: object }
+            status: { type: string, enum: [draft, active, deprecated, merged] }
+            confidence: { type: number, minimum: 0, maximum: 1 }
+            source_count: { type: integer }
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+
+    Relation:
+      type: object
+      properties:
+        id: { type: string, example: "rel_m3n4o5p6" }
+        type: { type: string, example: "relation" }
+        attributes:
+          type: object
+          properties:
+            relation_type: { type: string }
+            source: { $ref: "#/components/schemas/EntityRef" }
+            target: { $ref: "#/components/schemas/EntityRef" }
+            properties: { type: object }
+            confidence: { type: number }
+            statement_count: { type: integer }
+            status: { type: string, enum: [active, deprecated] }
+            valid_from: { type: string, format: date-time }
+            valid_until: { type: string, format: date-time }
+
+    EntityRef:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string }
+
+    Statement:
+      type: object
+      properties:
+        id: { type: string, example: "stmt_q7r8s9t0" }
+        type: { type: string, example: "statement" }
+        attributes:
+          type: object
+          properties:
+            statement_type: { type: string, enum: [entity_extraction, relation_extraction, manual] }
+            predicate: { type: string }
+            object_value: { type: string }
+            confidence: { type: number }
+            source_snippet: { type: string }
+            review_status: { type: string, enum: [pending, approved, rejected] }
+            created_at: { type: string, format: date-time }
+
+    # ── Search ──
+    SearchResultItem:
+      type: object
+      properties:
+        id: { type: string }
+        type: { type: string }
+        score: { type: number }
+        source: { type: string, enum: [fulltext, vector, hybrid] }
+        highlights: { type: object }
+        attributes: { type: object }
+
+    # ── AI ──
+    AsyncTask:
+      type: object
+      properties:
+        task_id: { type: string, example: "tsk_y5z6a7b8" }
+        status: { type: string, enum: [pending, running, completed, failed] }
+
+    ChatResponse:
+      type: object
+      properties:
+        answer: { type: string }
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              article_id: { type: string }
+              title: { type: string }
+              url: { type: string }
+              snippet: { type: string }
+        entities_mentioned:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntityRef"
+        model: { type: string }
+        tokens_used: { type: integer }
+
+    # ── System ──
+    HealthResponse:
+      type: object
+      properties:
+        status: { type: string }
+        version: { type: string }
+        uptime_seconds: { type: integer }
+
+    StatsResponse:
+      type: object
+      properties:
+        articles_total: { type: integer }
+        articles_today: { type: integer }
+        entities_total: { type: integer }
+        relations_total: { type: integer }
+        statements_total: { type: integer }
+        sources_active: { type: integer }
+        users_total: { type: integer }
+        ai_tokens_used_today: { type: integer }
+        ai_cost_today:
+          type: object
+          properties:
+            amount: { type: number }
+            currency: { type: string }
+
+# ── Paths ──
+paths:
+  # ── System ──
+  /health:
+    get:
+      tags: [System]
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /health/ready:
+    get:
+      tags: [System]
+      summary: Readiness check
+      responses:
+        "200": { description: Ready }
+        "503": { description: Not Ready }
+
+  /stats:
+    get:
+      tags: [System]
+      summary: System statistics
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  # ── Content ──
+  /sources:
+    get:
+      tags: [Content]
+      summary: List content sources
+      parameters:
+        - name: type
+          in: query
+          schema: { type: string, enum: [rss, api, scraper, manual] }
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, paused, error, deprecated] }
+        - $ref: "#/components/parameters/Language"
+        - $ref: "#/components/parameters/PaginationPage"
+        - $ref: "#/components/parameters/PaginationSize"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+    post:
+      tags: [Content]
+      summary: Register a new source
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, source_type, url, language]
+              properties:
+                name: { type: string }
+                source_type: { type: string, enum: [rss, api, scraper, manual] }
+                url: { type: string, format: uri }
+                language: { type: string }
+                fetch_config:
+                  type: object
+                  properties:
+                    interval_seconds: { type: integer }
+                    timeout_seconds: { type: integer }
+                    max_items_per_fetch: { type: integer }
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /sources/{source_id}:
+    get:
+      tags: [Content]
+      summary: Get source details
+      parameters:
+        - name: source_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+    put:
+      tags: [Content]
+      summary: Update a source
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: source_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+    delete:
+      tags: [Content]
+      summary: Delete a source
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: source_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: Deleted }
+
+  /articles:
+    get:
+      tags: [Content]
+      summary: List articles
+      parameters:
+        - name: source_id
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, published, archived] }
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+        - name: sort
+          in: query
+          schema: { type: string, default: "-published_at" }
+        - name: fields
+          in: query
+          schema: { type: string }
+        - $ref: "#/components/parameters/Language"
+        - $ref: "#/components/parameters/PaginationPage"
+        - $ref: "#/components/parameters/PaginationSize"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  /articles/{article_id}:
+    get:
+      tags: [Content]
+      summary: Get article details
+      parameters:
+        - name: article_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  # ── Knowledge ──
+  /entities:
+    get:
+      tags: [Knowledge]
+      summary: Search entities
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [person, organization, location, event, concept, product, work, natural_entity]
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, active, deprecated, merged] }
+        - name: min_confidence
+          in: query
+          schema: { type: number }
+        - name: sort
+          in: query
+          schema: { type: string }
+        - $ref: "#/components/parameters/Language"
+        - $ref: "#/components/parameters/PaginationPage"
+        - $ref: "#/components/parameters/PaginationSize"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  /entities/{entity_id}:
+    get:
+      tags: [Knowledge]
+      summary: Get entity details
+      parameters:
+        - name: entity_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /entities/{entity_id}/relations:
+    get:
+      tags: [Knowledge]
+      summary: Get entity relations
+      parameters:
+        - name: entity_id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: type
+          in: query
+          schema: { type: string }
+        - name: direction
+          in: query
+          schema: { type: string, enum: [outgoing, incoming, both] }
+        - $ref: "#/components/parameters/PaginationPage"
+        - $ref: "#/components/parameters/PaginationSize"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  /entities/{entity_id}/timeline:
+    get:
+      tags: [Knowledge]
+      summary: Get entity timeline
+      parameters:
+        - name: entity_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  /statements:
+    get:
+      tags: [Knowledge]
+      summary: List statements
+      parameters:
+        - name: review_status
+          in: query
+          schema: { type: string, enum: [pending, approved, rejected] }
+        - name: statement_type
+          in: query
+          schema: { type: string, enum: [entity_extraction, relation_extraction, manual] }
+        - name: subject_id
+          in: query
+          schema: { type: string }
+        - $ref: "#/components/parameters/PaginationPage"
+        - $ref: "#/components/parameters/PaginationSize"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  /statements/{statement_id}/approve:
+    post:
+      tags: [Knowledge]
+      summary: Approve a statement
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: statement_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /statements/{statement_id}/reject:
+    post:
+      tags: [Knowledge]
+      summary: Reject a statement
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: statement_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  # ── Graph ──
+  /graph/entity/{entity_id}/neighbors:
+    get:
+      tags: [Graph]
+      summary: Get entity neighbors
+      parameters:
+        - name: entity_id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: types
+          in: query
+          schema: { type: string }
+        - name: direction
+          in: query
+          schema: { type: string, enum: [outgoing, incoming, both] }
+        - name: depth
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 3, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /graph/paths:
+    get:
+      tags: [Graph]
+      summary: Find paths between entities
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema: { type: string }
+        - name: to
+          in: query
+          required: true
+          schema: { type: string }
+        - name: max_depth
+          in: query
+          schema: { type: integer, default: 3 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  /graph/trending:
+    get:
+      tags: [Graph]
+      summary: Get trending entities
+      parameters:
+        - name: window
+          in: query
+          schema: { type: string, enum: [1h, 6h, 24h, 7d], default: "24h" }
+        - name: entity_type
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  # ── Search ──
+  /search:
+    get:
+      tags: [Search]
+      summary: Unified search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: mode
+          in: query
+          schema: { type: string, enum: [fulltext, vector, hybrid], default: "hybrid" }
+        - name: types
+          in: query
+          schema: { type: string }
+        - name: highlight
+          in: query
+          schema: { type: boolean, default: true }
+        - $ref: "#/components/parameters/Language"
+        - $ref: "#/components/parameters/PaginationPage"
+        - $ref: "#/components/parameters/PaginationSize"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  /search/autocomplete:
+    get:
+      tags: [Search]
+      summary: Search autocomplete
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: types
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 5 }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResponse"
+
+  # ── AI ──
+  /ai/summarize:
+    post:
+      tags: [AI]
+      summary: Generate article summary
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [article_id]
+              properties:
+                article_id: { type: string }
+                style: { type: string, enum: [concise, detailed, bullet_points] }
+                max_length: { type: integer }
+                language: { type: string }
+                model: { type: string }
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /ai/translate:
+    post:
+      tags: [AI]
+      summary: Translate text
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text, target_language]
+              properties:
+                text: { type: string }
+                source_language: { type: string }
+                target_language: { type: string }
+                article_id: { type: string }
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /ai/chat:
+    post:
+      tags: [AI]
+      summary: Knowledge-grounded chat
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question: { type: string }
+                language: { type: string }
+                max_tokens: { type: integer }
+                temperature: { type: number }
+                include_sources: { type: boolean }
+                context_entity_ids:
+                  type: array
+                  items: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /ai/tasks/{task_id}:
+    get:
+      tags: [AI]
+      summary: Get task status
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  # ── User ──
+  /users/register:
+    post:
+      tags: [User]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, display_name]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+                display_name: { type: string }
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /users/login:
+    post:
+      tags: [User]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /users/me:
+    get:
+      tags: [User]
+      summary: Get current user
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
+
+  /users/me/preferences:
+    put:
+      tags: [User]
+      summary: Update preferences
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                language: { type: string }
+                topics: { type: array, items: { type: string } }
+                sources: { type: array, items: { type: string } }
+                notification:
+                  type: object
+                  properties:
+                    email_enabled: { type: boolean }
+                    push_enabled: { type: boolean }
+                    daily_digest: { type: boolean }
+                    breaking_news: { type: boolean }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleResponse"
