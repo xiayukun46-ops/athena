@@ -1,74 +1,88 @@
 ﻿# RFC-000: RFC Template
 
+> 所有 RFC 必须遵循 [文档模板标准](../TEMPLATE.md) 的九章结构。
+
+---
+
+## 1. Background（背景）
+
+项目当前阶段。触发此 RFC 的需求或机会。相关历史讨论。
+
+## 2. Problem（问题）
+
+精确定义要解决的产品或技术问题。当前状态。受影响的范围。
+
+## 3. Goals（目标）
+
+- [ ] 量化的成功标准
+- [ ] (P0/P1/P2) 标注优先级
+
+## 4. Non-goals（非目标）
+
+- 明确排除的范围
+- 说明排除原因
+
+## 5. Design（设计）
+
+### 5.1 High-level Design
+
+### 5.2 API / Interface
+
+```python
+# 接口定义示例
+```
+
+### 5.3 Data Flow
+
+（推荐 Mermaid 图）
+
+### 5.4 User Experience
+
+（如果涉及用户界面变更）
+
+### 5.5 Migration Plan
+
+（如果影响已有系统）
+
+## 6. Alternatives（替代方案）
+
+| 方案 | 优点 | 缺点 | 为什么不选 |
+|------|------|------|-----------|
+| A | ... | ... | 因为... |
+| B | ... | ... | 因为... |
+| **C (提案)** | ... | ... | — |
+
+至少包含 2 个替代方案。
+
+## 7. Risks（风险）
+
+| 风险 | 概率 | 影响 | 缓解措施 |
+|------|------|------|----------|
+| ... | 高/中/低 | 高/中/低 | ... |
+
+## 8. Future Work（未来演进）
+
+短期后续工作。长期演进方向。
+
+**重新审视触发条件**: 什么情况下需要重新评估？
+
+## 9. References（参考）
+
+- 相关 ADR
+- 相关 RFC
+- 外部参考
+
+---
+
 ## Metadata
 
 | 字段 | 内容 |
 |------|------|
-| RFC ID | RFC-000 |
+| RFC ID | RFC-XXX |
 | Title | 提案标题 |
-| Status | Draft / Review / Accepted / Rejected / Implemented |
+| Status | Draft / Review / Accepted / Rejected |
 | Author | @author |
 | Created | YYYY-MM-DD |
-| Updated | YYYY-MM-DD |
 | Target Phase | Phase X |
-| Depends On | RFC-XXX, RFC-YYY |
-
-## Abstract
-
-一段话概述本提案要解决的问题和提出的方案。
-
-## Motivation
-
-### Problem Statement
-- 当前存在什么问题？
-- 为什么现有方案无法解决？
-
-### Use Cases
-- 典型使用场景 1
-- 典型使用场景 2
-
-## Proposal
-
-### High-level Design
-
-详细描述方案设计，包含架构图、数据流等。
-
-### API / Interface
-
-```python
-# 伪代码示例
-```
-
-### Migration Plan
-
-如何从现有系统迁移到新方案？
-
-## Alternatives Considered
-
-| 方案 | 优点 | 缺点 | 为什么不选 |
-|------|------|------|-----------|
-| A | ... | ... | ... |
-| B | ... | ... | ... |
-
-## Impact Assessment
-
-### Breaking Changes
-- 是否破坏向后兼容性？
-
-### Performance
-- 对性能的影响预估
-
-### Security
-- 安全隐患分析
-
-### Testing
-- 测试策略
-
-## Open Questions
-
-- [ ] 待解决的问题 1
-- [ ] 待解决的问题 2
-
-## References
-
-- 相关链接
+| Depends On | RFC-XXX |
+| Discussion | [Link to GitHub Discussion] |
