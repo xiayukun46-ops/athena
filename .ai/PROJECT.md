@@ -66,3 +66,18 @@ Background → Problem → Goals → Non-goals → Design → Alternatives → R
 - [REVIEW_PROCESS.md](REVIEW_PROCESS.md) — 审查与审批
 - [DOC_TEMPLATE.md](DOC_TEMPLATE.md) — 文档模板
 - [CODING_STANDARD.md](CODING_STANDARD.md) — 编码规范
+
+## 任务启动规则
+
+**任何任务开始之前，必须先阅读 `.ai/` 和 `docs/` 中的所有相关规范。**
+
+如果发现：
+- 规范之间存在冲突
+- 规范缺失覆盖当前场景
+
+**不允许自行假设。** 必须：
+1. 明确指出冲突或缺失的具体内容
+2. 提出解决方案建议
+3. 等待确认，或提交 RFC
+
+假设驱动的开发是架构腐化的第一推手。
