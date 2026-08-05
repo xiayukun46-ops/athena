@@ -1,86 +1,109 @@
-﻿# AI Agent — Coding Standard
+﻿# CODING_STANDARD.md
 
-> Athena 代码必须遵守的编写规范。违反的 PR 将被拒绝。
+> Athena 编码规范。违反的代码在 Review 阶段被拒绝。
 
 ---
 
-## Python 规范
+## Python
 
-- Python 3.12+, 格式化: `ruff format`, Lint: `ruff check`
-- 类型检查: `mypy --strict`
-- 依赖管理: `uv`
-- 测试: `pytest` + `pytest-asyncio` + `pytest-cov`
+| 规则 | 标准 |
+|------|------|
+| 版本 | Python 3.12+ |
+| 格式化 | `ruff format` |
+| Lint | `ruff check` |
+| 类型检查 | `mypy --strict` |
+| 包管理 | `uv` |
+| 测试 | `pytest` + `pytest-asyncio` + `pytest-cov` |
+| 文档 | Google Style Docstring |
 
 ### 命名
 
 | 元素 | 规范 | 示例 |
 |------|------|------|
-| 模块 | snake_case | `entity_extractor.py` |
+| 模块/文件 | snake_case | `entity_extractor.py` |
 | 类 | PascalCase | `EntityExtractionService` |
-| 函数 | snake_case | `extract_entities()` |
+| 函数/方法 | snake_case | `extract_entities()` |
 | 变量 | snake_case | `article_count` |
 | 常量 | UPPER_SNAKE | `MAX_RETRY_COUNT` |
-| 接口/协议 | I 前缀 | `IEventBus` |
+| 接口/抽象类 | I 前缀 | `IEventBus`, `ISourcePlugin` |
+| 私有成员 | _ 前缀 | `_internal_method()` |
 
-### 文件
+### 结构限制
 
-- ≤ 400 行/文件, ≤ 30 行/函数, ≤ 200 行/类
-- Import 顺序: 标准库 → 第三方 → 项目内部
+| 限制 | 值 |
+|------|-----|
+| 文件最大行数 | 400 |
+| 函数最大行数 | 30 |
+| 类最大行数 | 200 |
 
-### 文档
+### Import 顺序
 
-```python
-def extract_entities(text: str, language: str = "auto") -> list[Entity]:
-    """从文本中提取命名实体。
-
-    Args:
-        text: 待处理的原始文本。
-        language: 文本语言代码，默认自动检测。
-
-    Returns:
-        提取到的实体列表。
-
-    Raises:
-        ValueError: 文本为空。
-    """
 ```
+1. 标准库 (os, json, datetime)
+2. 第三方库 (fastapi, sqlalchemy)
+3. 项目内部 (src.shared, src.content)
+```
+
+每组间空一行。组内按字母序。
 
 ---
 
-## TypeScript 规范
+## TypeScript
 
-- TypeScript 5.x, Node.js 22 LTS, 包管理: `pnpm`
-- 格式化: `prettier`, Lint: `eslint`
-- 测试: `vitest`
+| 规则 | 标准 |
+|------|------|
+| 版本 | TypeScript 5.x, Node.js 22 LTS |
+| 格式化 | `prettier` |
+| Lint | `eslint` + `@typescript-eslint` |
+| 类型检查 | `tsc --noEmit` |
+| 包管理 | `pnpm` |
+| 测试 | `vitest` |
 
 ---
 
-## Git 规范
-
-### Commit: Conventional Commits
-
-```
-feat(domain): add KnowledgeEntity aggregate
-fix(collector): handle RSS parse errors
-docs(architecture): update data flow diagram
-test(entity): add merge entity tests
-```
+## Git
 
 ### Branch
 
 ```
-feature/{issue}-{brief}
-bugfix/{issue}-{brief}
+feature/{issue}-{描述}
+bugfix/{issue}-{描述}
+docs/{描述}
+refactor/{描述}
+```
+
+### Commit (Conventional Commits)
+
+```
+feat(scope): description
+fix(scope): description
+docs(scope): description
+test(scope): description
+refactor(scope): description
+chore(scope): description
 ```
 
 ### PR
 
 - 标题符合 Conventional Commits
 - 描述: What / Why / How
-- 关联 Issue
+- 关联 Issue (`Closes #xxx`)
+- 合并策略: Squash Merge
+
+---
+
+## 禁止事项
+
+- `print()` / `console.log()` 调试语句
+- 注释掉的代码块
+- `except: pass` / `catch {}` 空异常
+- 硬编码密钥 / Token / URL
+- 字符串拼接 SQL / Cypher
 
 ---
 
 ## 完整参考
 
-- [docs/governance/coding-standard.md](docs/governance/coding-standard.md) — 完整编码规范
+- [docs/governance/coding-standard.md](../docs/governance/coding-standard.md) — 完整编码规范
+- [PROJECT.md](PROJECT.md) — 铁律
+- [WORKFLOW.md](WORKFLOW.md) — 开发流程
