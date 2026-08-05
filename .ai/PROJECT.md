@@ -50,4 +50,16 @@
 
 1. Background  2. Problem  3. Goals  4. Non-goals  5. Design  6. Alternatives  7. Risks  8. Future Work  9. References
 
-ȱʧ��һ�½ڵ��ĵ��������ܡ�
+ȱʧ��һ�½ڵ��ĵ��������ܡ�## 阶段推进规则
+
+**禁止自动进入下一阶段。**
+
+每个阶段完成后，必须停止并等待 Review。
+只有收到明确指令 `APPROVED` 才能继续。
+
+未收到 APPROVED 时：
+- 必须修改直到通过
+- 不能跳过进入下一阶段
+- 不能假设沉默即批准
+
+此规则不可绕过。
