@@ -1,6 +1,7 @@
 ﻿"""Domain events for the Knowledge bounded context.
 
-Complete event catalog as defined in docs/domain/event-model.md.
+True domain events only. Infrastructure events (ArticleFetched,
+CollectorStarted, CrawlerFinished) belong in the infrastructure layer.
 """
 
 from __future__ import annotations
@@ -8,72 +9,71 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from athena_core.base import DomainEvent
-from athena_core.enums import ContentType, EntityType, RelationType, SearchMode
+from athena_core.enums import EntityType, RelationType, SearchMode
 from athena_core.identity import (
-    ArticleId, EntityId, RelationId, SourceId, StatementId, UserId,
-    new_article_id, new_entity_id, new_relation_id, new_source_id,
-    new_statement_id, new_user_id,
+    EntityId, RelationId, StatementId, UserId,
+    new_entity_id, new_relation_id, new_statement_id, new_user_id,
 )
 
 
-# ── Content Events ──
+# ── Knowledge Lifecycle Events ──
 
 @dataclass
-class ArticleFetched(DomainEvent):
-    article_id: ArticleId = field(default_factory=new_article_id)
-    source_id: SourceId = field(default_factory=new_source_id)
-    url: str = ""
-    url_hash: str = ""
-    title: str = ""
-    language: str = ""
-    published_at: str = ""
-    content_type: ContentType = ContentType.ARTICLE
-    word_count: int = 0
+class KnowledgeCreated(DomainEvent):
+    knowledge_id: str = ""
+    canonical_name: str = ""
+    entity_type: EntityType = EntityType.CONCEPT
 
     @property
-    def event_type(self) -> str:
-        return "ArticleFetched"
-
+    def event_type(self) -> str: return "KnowledgeCreated"
     @property
-    def aggregate_id(self) -> str:
-        return self.article_id
+    def aggregate_id(self) -> str: return self.knowledge_id
 
 
 @dataclass
-class ArticlePublished(DomainEvent):
-    article_id: ArticleId = field(default_factory=new_article_id)
-    source_id: SourceId = field(default_factory=new_source_id)
-    title: str = ""
-    language: str = ""
-    categories: list[str] = field(default_factory=list)
-    tags: list[str] = field(default_factory=list)
+class KnowledgeVerified(DomainEvent):
+    knowledge_id: str = ""
+    reviewer_id: UserId = field(default_factory=new_user_id)
 
     @property
-    def event_type(self) -> str:
-        return "ArticlePublished"
+    def event_type(self) -> str: return "KnowledgeVerified"
+    @property
+    def aggregate_id(self) -> str: return self.knowledge_id
+
+
+@dataclass
+class KnowledgePublished(DomainEvent):
+    knowledge_id: str = ""
 
     @property
-    def aggregate_id(self) -> str:
-        return self.article_id
+    def event_type(self) -> str: return "KnowledgePublished"
+    @property
+    def aggregate_id(self) -> str: return self.knowledge_id
 
 
-# ── Knowledge Events ──
+@dataclass
+class KnowledgeArchived(DomainEvent):
+    knowledge_id: str = ""
+    reason: str = ""
+
+    @property
+    def event_type(self) -> str: return "KnowledgeArchived"
+    @property
+    def aggregate_id(self) -> str: return self.knowledge_id
+
+
+# ── Entity Events ──
 
 @dataclass
 class EntityCreated(DomainEvent):
     entity_id: EntityId = field(default_factory=new_entity_id)
     canonical_name: str = ""
     entity_type: EntityType = EntityType.CONCEPT
-    language: str = ""
-    statement_ids: list[StatementId] = field(default_factory=list)
 
     @property
-    def event_type(self) -> str:
-        return "EntityCreated"
-
+    def event_type(self) -> str: return "EntityCreated"
     @property
-    def aggregate_id(self) -> str:
-        return self.entity_id
+    def aggregate_id(self) -> str: return self.entity_id
 
 
 @dataclass
@@ -82,13 +82,12 @@ class EntityUpdated(DomainEvent):
     changed_fields: list[str] = field(default_factory=list)
 
     @property
-    def event_type(self) -> str:
-        return "EntityUpdated"
-
+    def event_type(self) -> str: return "EntityUpdated"
     @property
-    def aggregate_id(self) -> str:
-        return self.entity_id
+    def aggregate_id(self) -> str: return self.entity_id
 
+
+# ── Relation Events ──
 
 @dataclass
 class RelationCreated(DomainEvent):
@@ -96,86 +95,40 @@ class RelationCreated(DomainEvent):
     relation_type: RelationType = RelationType.RELATED_TO
     source_entity_id: EntityId = field(default_factory=new_entity_id)
     target_entity_id: EntityId = field(default_factory=new_entity_id)
-    confidence: float = 0.5
-    statement_ids: list[StatementId] = field(default_factory=list)
 
     @property
-    def event_type(self) -> str:
-        return "RelationCreated"
-
+    def event_type(self) -> str: return "RelationCreated"
     @property
-    def aggregate_id(self) -> str:
-        return self.relation_id
+    def aggregate_id(self) -> str: return self.relation_id
 
 
-# ── Search Events ──
+# ── Statement Events ──
 
 @dataclass
-class SearchPerformed(DomainEvent):
-    query_text: str = ""
-    search_mode: SearchMode = SearchMode.HYBRID
-    result_count: int = 0
-    latency_ms: int = 0
-    user_id: UserId | None = None
-    language: str = ""
+class StatementApproved(DomainEvent):
+    statement_id: StatementId = field(default_factory=new_statement_id)
+    reviewer_id: UserId = field(default_factory=new_user_id)
 
     @property
-    def event_type(self) -> str:
-        return "SearchPerformed"
-
+    def event_type(self) -> str: return "StatementApproved"
     @property
-    def aggregate_id(self) -> str:
-        return self.query_text
-
-
-# ── AI Events ──
-
-@dataclass
-class TaskStarted(DomainEvent):
-    task_id: str = ""
-    prompt_name: str = ""
-    model: str = ""
-    task_type: str = ""
-    target_article_id: ArticleId | None = None
-
-    @property
-    def event_type(self) -> str:
-        return "TaskStarted"
-
-    @property
-    def aggregate_id(self) -> str:
-        return self.task_id
+    def aggregate_id(self) -> str: return self.statement_id
 
 
 @dataclass
-class TaskCompleted(DomainEvent):
-    task_id: str = ""
-    output: dict = field(default_factory=dict)
-    tokens_used: int = 0
-    cost_amount: float = 0.0
-    cost_currency: str = "USD"
-    latency_ms: int = 0
+class StatementRejected(DomainEvent):
+    statement_id: StatementId = field(default_factory=new_statement_id)
+    reviewer_id: UserId = field(default_factory=new_user_id)
+    reason: str = ""
 
     @property
-    def event_type(self) -> str:
-        return "TaskCompleted"
-
+    def event_type(self) -> str: return "StatementRejected"
     @property
-    def aggregate_id(self) -> str:
-        return self.task_id
+    def aggregate_id(self) -> str: return self.statement_id
 
 
-# ── User Events ──
-
-@dataclass
-class UserRegistered(DomainEvent):
-    user_id: UserId = field(default_factory=new_user_id)
-    email: str = ""
-
-    @property
-    def event_type(self) -> str:
-        return "UserRegistered"
-
-    @property
-    def aggregate_id(self) -> str:
-        return self.user_id
+# ── Infrastructure Events (moved to infrastructure layer in Phase 2) ──
+# ArticleFetched, ArticlePublished → content infrastructure
+# TaskStarted, TaskCompleted → AI infrastructure
+# SearchPerformed → search infrastructure
+# CollectorStarted, CrawlerFinished → collector infrastructure

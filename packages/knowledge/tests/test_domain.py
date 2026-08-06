@@ -11,7 +11,7 @@ from athena_knowledge.quality import QualityScore
 from athena_knowledge.permission import Permission, PermissionScope
 from athena_knowledge.lifecycle import EntityLifecycle, RelationLifecycle, StatementLifecycle
 from athena_knowledge.workflow import RetryPolicy, WorkflowContext, WorkflowStageResult
-from athena_knowledge.events import ArticleFetched, EntityCreated, RelationCreated, TaskCompleted
+from athena_knowledge.events import EntityCreated, RelationCreated
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -289,16 +289,6 @@ class TestWorkflow:
 # ═══════════════════════════════════════════════════════════════
 
 class TestEvents:
-    def test_article_fetched_event(self):
-        e = ArticleFetched(
-            article_id=EntityId("art_test0001"),
-            title="Test Article",
-            language="en",
-        )
-        assert e.event_type == "ArticleFetched"
-        assert e.aggregate_id == "art_test0001"
-        assert e.title == "Test Article"
-
     def test_entity_created_event(self):
         e = EntityCreated(
             entity_id=EntityId("ent_test0001"),
@@ -309,7 +299,7 @@ class TestEvents:
         assert e.canonical_name == "Test Entity"
 
     def test_event_has_timestamp(self):
-        e = ArticleFetched(title="X")
+        e = EntityCreated(canonical_name="X")
         assert e.occurred_at is not None
         assert e.event_id is not None
 
