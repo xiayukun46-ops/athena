@@ -53,10 +53,32 @@ def generate_id(prefix: str, *, short_uuid_len: int = 8) -> str:
 
 def is_valid_id(value: str, prefix: str) -> bool:
     """Check if a string is a valid typed identifier."""
+    if not value:
+        return False
     parts = value.split("_", 1)
     if len(parts) != 2:
         return False
     return parts[0] == prefix and len(parts[1]) >= 6
+
+
+def parse_id(value: str) -> tuple[str, str]:
+    """Parse a typed ID into (prefix, uuid_part).
+
+    Args:
+        value: A typed ID string like 'ent_a1b2c3d4'
+
+    Returns:
+        Tuple of (prefix, uuid_short)
+
+    Raises:
+        ValueError: If the ID format is invalid.
+    """
+    if not value or "_" not in value:
+        raise ValueError(f"Invalid ID format: {value!r}")
+    prefix, uuid_part = value.split("_", 1)
+    if not prefix or len(uuid_part) < 6:
+        raise ValueError(f"Invalid ID format: {value!r}")
+    return prefix, uuid_part
 
 
 # ── Convenience generators ──
