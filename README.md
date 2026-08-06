@@ -1,6 +1,6 @@
-﻿# Athena Knowledge Platform
+# Athena — AI-Powered Global Knowledge Operating System
 
-> AI 驱动的全球知识平台 —— 聚合、理解、连接世界的每一条信息。
+> AI 驱动的全球知识操作系统。以权威来源为基础，持续收集、验证、组织、关联、搜索和长期管理全球知识的 AI 平台。
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-pre--alpha-red.svg)]()

@@ -151,3 +151,11 @@
 ---
 
 *Decision Log 持续更新。每次架构决策、否定、延期必须记录。*
+
+### D-017: 项目定位升级 — AI-Powered Global Knowledge Operating System
+
+**决策**: 正式定义为 AI-Powered Global Knowledge Operating System。
+**一句话**: 一个以权威来源为基础，能够持续收集、验证、组织、关联、搜索和长期管理全球知识的 AI 平台。
+**为什么**: 项目已远超新闻聚合的范畴。Athena 是一个完整的知识操作系统。
+**写入位置**: README.md, docs/00-vision.md, 官网首页（未来）, GitHub 仓库描述（未来）。
+**影响**: 所有后续设计围绕操作系统级能力展开——平台化、可编程、可扩展。
