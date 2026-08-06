@@ -56,6 +56,8 @@ class Statement(AggregateRoot):
     metadata: StandardMetadata = field(default_factory=StandardMetadata)
 
     def __post_init__(self) -> None:
+        if not self.predicate.strip():
+            raise ValueError("Statement predicate cannot be empty")
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError("Confidence must be in [0.0, 1.0]")
 
@@ -94,6 +96,17 @@ class Statement(AggregateRoot):
     @property
     def is_rejected(self) -> bool:
         return self.review_status == ReviewStatus.REJECTED
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Statement):
+            return NotImplemented
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+    def __repr__(self) -> str:
+        return f"Statement(id={self.id}, predicate={self.predicate!r}, status={self.review_status.value})"
 
     def _touch(self) -> None:
         self.metadata = self.metadata.increment_version()

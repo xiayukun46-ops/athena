@@ -76,6 +76,17 @@ class KnowledgeRelation(AggregateRoot):
         decay = min(1.0, 1.0 / (len(self.statements) ** 0.3))
         self.confidence = min(0.5 + 0.1 * len(self.statements), 1.0) * decay
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, KnowledgeRelation):
+            return NotImplemented
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+    def __repr__(self) -> str:
+        return f"KnowledgeRelation(id={self.id}, type={self.relation_type.value}, status={self.status.value})"
+
     def _touch(self) -> None:
         self.metadata = self.metadata.increment_version()
 

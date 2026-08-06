@@ -156,6 +156,20 @@ class KnowledgeEntity(AggregateRoot):
         )
         self._touch()
 
+    def __repr__(self) -> str:
+        return f"KnowledgeEntity(id={self.id}, name={self.canonical_name!r}, type={self.entity_type.value})"
+
+    def __str__(self) -> str:
+        return self.canonical_name or str(self.id)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, KnowledgeEntity):
+            return NotImplemented
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
     def _touch(self) -> None:
         self.metadata = self.metadata.increment_version()
 
