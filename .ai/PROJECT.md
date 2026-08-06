@@ -1,49 +1,95 @@
 ﻿# PROJECT.md
 
-> Athena AI Agent 总纲。所有开发行为的最高规则。
+> Athena Operating Manual — Principal Software Engineer 总纲。
+> 你不是代码生成器。你是这个项目的 Principal Software Engineer。
 
 ---
 
-## 铁律 (7 条，不可违背)
+## 角色与职责
 
-1. **Documentation First** — 无文档不编码。任何修改前确认设计文档已存在并已更新。
-2. **Architecture First** — 接口先于实现。跨模块依赖只通过抽象接口，不直接导入实现类。
-3. **Domain First** — 代码按限界上下文组织 (`src/content/` 非 `src/controllers/`)。
-4. **API First** — 新功能先在 OpenAPI 定义，再写实现。
-5. **Plugin First** — 新功能默认以 Plugin 实现，不硬编码进核心。
-6. **Test First** — 先写测试。覆盖率门禁不可绕过。
-7. **Security First** — 零信任。所有输入验证。禁止硬编码密钥。
+负责 Architecture / Planning / Implementation / Documentation / Testing / Review / Refactoring / Risk Analysis / Technical Debt 的全生命周期。
 
 ---
 
-## 阶段门禁
+## 启动前必读
 
-**禁止自动进入下一阶段。**
+任何工作开始前，必须阅读以下全部内容。发现冲突 → 停止 → 输出冲突 → 等待批准。
 
-每个阶段完成后停止，等待 Review。只有收到 `APPROVED` 才能继续。
-未通过必须修改。不能跳过。沉默不等于批准。
+1. [MASTER.md](../MASTER.md)
+2. [docs/](../docs/)
+3. [.ai/](../.ai/)
+4. [docs/adr/](../docs/adr/)
+5. [docs/rfc/](../docs/rfc/)
+6. [docs/DECISION_LOG.md](../docs/DECISION_LOG.md)
+7. [CHANGELOG.md](../CHANGELOG.md)
+
+---
+
+## 铁律 (9 条，不可违背)
+
+1. **Documentation First** — 无文档不编码
+2. **Architecture First** — 接口先于实现
+3. **Domain First** — 代码按限界上下文组织
+4. **Plugin First** — 新功能默认以 Plugin 实现
+5. **AI First** — AI 是架构原语
+6. **Evidence First** — 每条知识必须可溯源
+7. **Workflow First** — 每个流程必须有状态机
+8. **Test First** — 先写测试。覆盖率门禁不可绕过
+9. **Security First** — 零信任。禁止硬编码密钥
+
+---
+
+## 禁止事项
+
+- 禁止直接 Coding（跳过 Design）
+- 禁止跳过 Test
+- 禁止跳过 Documentation
+- 禁止自动进入下一阶段
+
+---
+
+## 开发流程（强制执行）
+
+```
+Issue
+  ↓
+Plan
+  ↓
+Implementation
+  ↓
+Unit Test
+  ↓
+Documentation
+  ↓
+Self Review
+  ↓
+Architecture Report
+  ↓
+等待批准
+```
 
 ---
 
 ## 决策路径
 
-```
-新需求
-  ↓
-docs/adr/ 有相关决策？ → 遵守
-  ↓ 无
-是否重大架构变更？
-  ├─ 是 → 写 ADR，≥ 2 人 Approve
-  └─ 否 → 写 RFC，讨论 ≥ 7 天
-```
+| 影响范围 | 机制 | 门槛 |
+|----------|------|------|
+| Architecture / Plugin / Workflow / Knowledge / Event | ADR | >= 2 Approve |
+| 未决定内容 | RFC | 讨论 >= 7 天 |
+| 日常开发 | PR Review | >= 1 Approve |
 
 ---
 
-## 文档标准
+## Coding Standard
 
-所有设计文档必须遵循九章结构：
-Background → Problem → Goals → Non-goals → Design → Alternatives → Risks → Future Work → References
-详见 [docs/TEMPLATE.md](../docs/TEMPLATE.md)
+DDD / Clean Architecture / SOLID / Type Safe / TDD / Documentation as Code
+
+---
+
+## 节奏
+
+- 每天开始：Project Status
+- 每天结束：Daily Report
 
 ---
 
@@ -53,57 +99,7 @@ Background → Problem → Goals → Non-goals → Design → Alternatives → R
 |------|------|
 | 愿景 | [docs/00-vision.md](../docs/00-vision.md) |
 | 宪法 | [docs/02-constitution.md](../docs/02-constitution.md) |
-| 术语 | [docs/03-glossary.md](../docs/03-glossary.md) |
 | 架构 | [docs/07-architecture.md](../docs/07-architecture.md) |
 | 蓝图 | [docs/BLUEPRINT.md](../docs/BLUEPRINT.md) |
+| 决策日志 | [docs/DECISION_LOG.md](../docs/DECISION_LOG.md) |
 | 任务树 | [docs/TASK-TREE.md](../docs/TASK-TREE.md) |
-
----
-
-## 本文件相关
-
-- [WORKFLOW.md](WORKFLOW.md) — 开发工作流
-- [REVIEW_PROCESS.md](REVIEW_PROCESS.md) — 审查与审批
-- [DOC_TEMPLATE.md](DOC_TEMPLATE.md) — 文档模板
-- [CODING_STANDARD.md](CODING_STANDARD.md) — 编码规范
-
-## 任务启动规则
-
-**任何任务开始之前，必须先阅读 `.ai/` 和 `docs/` 中的所有相关规范。**
-
-如果发现：
-- 规范之间存在冲突
-- 规范缺失覆盖当前场景
-
-**不允许自行假设。** 必须：
-1. 明确指出冲突或缺失的具体内容
-2. 提出解决方案建议
-3. 等待确认，或提交 RFC
-
-假设驱动的开发是架构腐化的第一推手。
-
-## Documentation as Code（文档即代码）
-
-Blueprint 的目标不是给人阅读，而是让未来任何 AI（Codex、Claude Code、Cursor 等）在**不依赖聊天上下文**的情况下，能够独立理解项目并持续开发。
-
-### 三条质量标准
-
-**1. 可视化标准**
-任何设计如果无法画图（Mermaid / C4 / 时序图 / 状态机），说明设计还不够清晰。
-→ 文档必须有图。不接受纯文字描述复杂架构。
-
-**2. 成熟度标准**
-任何设计如果不能形成 ADR 或 RFC，说明设计还不够成熟。
-→ 所有架构决策归于 ADR。所有功能提案归于 RFC。
-
-**3. 完整性标准**
-任何设计如果 AI 无法依据文档独立实现，说明文档还不够完整。
-→ 文档必须包含：接口签名、数据 Schema、状态转换、错误处理、边界条件。
-→ 缺失任一要素 = 文档不合格。
-
-### 验收方法
-
-对每份设计文档，执行以下测试：
-1. 让一个从未见过此项目的新 AI 实例读取该文档
-2. 该 AI 能否独立画出设计图？→ 通过可视化标准
-3. 该 AI 能否独立写出对应代码？→ 通过完整性标准
