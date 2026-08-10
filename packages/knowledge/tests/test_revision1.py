@@ -5,7 +5,7 @@ from athena_core.identity import EntityId
 
 from athena_knowledge.knowledge_object import (
     KnowledgeObject, KnowledgeEntity, KnowledgeRelation, KnowledgeStatement,
-    EntityName, EntityProperty, StatementSource, Evidence, SourceAuthority,
+    EntityName, EntityProperty, StatementSource, Evidence,
     KnowledgeVerified, KnowledgePublished, KnowledgeArchived,
 )
 from athena_knowledge.knowledge_source import (

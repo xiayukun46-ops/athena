@@ -75,15 +75,6 @@ class Evidence(ValueObject):
         if not 0.0 <= self.confidence <= 1.0: raise ValueError("Confidence 0.0-1.0")
 
 
-@dataclass(frozen=True)
-class SourceAuthority(ValueObject):
-    name: str = ""
-    url: str = ""
-    credibility_score: float = 0.5
-    def _validate(self) -> None:
-        if not 0.0 <= self.credibility_score <= 1.0: raise ValueError("Credibility 0.0-1.0")
-
-
 # ── Knowledge Components (not aggregates) ──
 
 @dataclass
@@ -189,7 +180,7 @@ class KnowledgeObject(AggregateRoot):
     description: str = ""
 
     # Source information
-    source: SourceAuthority = field(default_factory=SourceAuthority)
+    source_id: SourceId = field(default_factory=new_source_id)
 
     # Core components
     entities: list[KnowledgeEntity] = field(default_factory=list)

@@ -3,7 +3,7 @@
 from .knowledge_object import (
     KnowledgeObject, KnowledgeEntity, KnowledgeRelation, KnowledgeStatement,
     EntityName, EntityAlias, EntityProperty, StatementSource, Evidence,
-    SourceAuthority, KnowledgeCreated, KnowledgeVerified,
+    KnowledgeCreated, KnowledgeVerified,
     KnowledgePublished, KnowledgeArchived,
 )
 from .knowledge_source import (
@@ -29,7 +29,7 @@ from .events import (
 __all__ = [
     "KnowledgeObject", "KnowledgeEntity", "KnowledgeRelation", "KnowledgeStatement",
     "EntityName", "EntityAlias", "EntityProperty", "StatementSource", "Evidence",
-    "SourceAuthority", "KnowledgeCreated", "KnowledgeVerified",
+    "KnowledgeCreated", "KnowledgeVerified",
     "KnowledgePublished", "KnowledgeArchived",
     "KnowledgeSource", "Authority", "TrustScore", "CollectorConfig",
     "Statement", "StatementApproved", "StatementRejected",
