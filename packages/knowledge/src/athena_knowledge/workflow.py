@@ -1,7 +1,7 @@
 ﻿"""Workflow Engine — domain workflow model for knowledge lifecycle.
 
-Defines WorkflowDefinition, WorkflowInstance, WorkflowStep,
-state transitions, retry policy, failure handling, and audit.
+WorkflowDefinition, WorkflowInstance, WorkflowStep, Transition,
+WorkflowState, RetryPolicy, AuditEntry.
 """
 
 from __future__ import annotations
@@ -16,235 +16,200 @@ from athena_core.metadata import StandardMetadata
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
+_uid = lambda prefix: f"{prefix}_{__import__('uuid').uuid4().hex[:8]}"
 
-# ── Workflow States ──
+
+# ── Standard States ──
+
+class WorkflowStates:
+    """Standard workflow state constants."""
+    CREATED = "CREATED"
+    COLLECTING = "COLLECTING"
+    VERIFYING = "VERIFYING"
+    NORMALIZING = "NORMALIZING"
+    ENRICHING = "ENRICHING"
+    INDEXING = "INDEXING"
+    PUBLISHED = "PUBLISHED"
+    FAILED = "FAILED"
+
+    @classmethod
+    def all_states(cls) -> list[str]:
+        return [cls.CREATED, cls.COLLECTING, cls.VERIFYING, cls.NORMALIZING,
+                cls.ENRICHING, cls.INDEXING, cls.PUBLISHED, cls.FAILED]
+
 
 @dataclass(frozen=True)
 class WorkflowState(ValueObject):
-    """A named state in a workflow."""
     name: str
     description: str = ""
-
     def _validate(self) -> None:
-        if not self.name.strip():
-            raise ValueError("State name cannot be empty")
-
-
-# ── Transition ──
-
-@dataclass(frozen=True)
-class Transition(ValueObject):
-    """A valid transition between two workflow states."""
-    from_state: str
-    to_state: str
-    name: str = ""
-    requires_validation: bool = True
-
-    def _validate(self) -> None:
-        if self.from_state == self.to_state:
-            raise ValueError("Transition from and to must be different")
-
-
-# ── RetryPolicy ──
-
-@dataclass(frozen=True)
-class RetryPolicy(ValueObject):
-    """Exponential backoff retry policy."""
-    max_retries: int = 3
-    backoff_base: float = 1.0
-    backoff_multiplier: float = 2.0
-    retryable_errors: tuple[str, ...] = ("NetworkError", "TimeoutError", "RateLimitError")
-
-    def _validate(self) -> None:
-        if self.max_retries < 0:
-            raise ValueError("max_retries must be >= 0")
-
-    def delay_for(self, attempt: int) -> float:
-        return self.backoff_base * (self.backoff_multiplier ** attempt)
-
-    def should_retry(self, error_type: str, attempt: int) -> bool:
-        return error_type in self.retryable_errors and attempt < self.max_retries
+        if not self.name.strip(): raise ValueError("State name cannot be empty")
 
 
 # ── WorkflowStep ──
 
 @dataclass(frozen=True)
 class WorkflowStep(ValueObject):
-    """A step within a workflow definition."""
-    name: str
-    state: str
+    id: str = field(default_factory=lambda: _uid("step"))
+    name: str = ""
     description: str = ""
-    is_required: bool = True
-    timeout_seconds: int = 300
-
+    order: int = 0
+    required: bool = True
     def _validate(self) -> None:
-        if not self.name.strip():
-            raise ValueError("Step name cannot be empty")
+        if self.order < 0: raise ValueError("Order must be >= 0")
 
 
-# ── WorkflowDefinition ──
+# ── Transition ──
 
 @dataclass(frozen=True)
-class WorkflowDefinition(ValueObject):
-    """Immutable definition of a workflow process."""
-    name: str
-    version: str = "1.0"
-    description: str = ""
-    steps: list[WorkflowStep] = field(default_factory=list)
-    transitions: list[Transition] = field(default_factory=list)
-    retry_policy: RetryPolicy = field(default_factory=RetryPolicy)
-
+class Transition(ValueObject):
+    from_state: str
+    to_state: str
+    condition: str = ""
     def _validate(self) -> None:
-        if not self.name.strip():
-            raise ValueError("Workflow name cannot be empty")
-        if not self.steps:
-            raise ValueError("Workflow must have at least one step")
+        if self.from_state == self.to_state:
+            raise ValueError("Self-transition not allowed")
 
-    def get_step(self, name: str) -> WorkflowStep | None:
-        for s in self.steps:
-            if s.name == name:
-                return s
-        return None
 
-    def can_transition(self, from_state: str, to_state: str) -> bool:
-        for t in self.transitions:
-            if t.from_state == from_state and t.to_state == to_state:
-                return True
-        return False
+# ── RetryPolicy ──
 
-    @staticmethod
-    def knowledge_pipeline() -> "WorkflowDefinition":
-        """Standard knowledge lifecycle workflow."""
-        return WorkflowDefinition(
-            name="KnowledgePipeline",
-            version="1.0",
-            description="COLLECTED -> VERIFIED -> NORMALIZED -> ENRICHED -> INDEXED -> PUBLISHED",
-            steps=[
-                WorkflowStep(name="collect", state="COLLECTED"),
-                WorkflowStep(name="verify", state="VERIFIED"),
-                WorkflowStep(name="normalize", state="NORMALIZED"),
-                WorkflowStep(name="enrich", state="ENRICHED"),
-                WorkflowStep(name="index", state="INDEXED"),
-                WorkflowStep(name="publish", state="PUBLISHED"),
-            ],
-            transitions=[
-                Transition("COLLECTED", "VERIFIED"),
-                Transition("VERIFIED", "NORMALIZED"),
-                Transition("NORMALIZED", "ENRICHED"),
-                Transition("ENRICHED", "INDEXED"),
-                Transition("INDEXED", "PUBLISHED"),
-            ],
-        )
+@dataclass(frozen=True)
+class RetryPolicy(ValueObject):
+    max_retries: int = 3
+    backoff_base: float = 1.0
+    backoff_multiplier: float = 2.0
+    retryable_errors: tuple[str, ...] = ("NetworkError", "TimeoutError", "RateLimitError")
+    def _validate(self) -> None:
+        if self.max_retries < 0: raise ValueError("max_retries >= 0")
+    def delay_for(self, attempt: int) -> float:
+        return self.backoff_base * (self.backoff_multiplier ** attempt)
+    def should_retry(self, error_type: str, attempt: int) -> bool:
+        return error_type in self.retryable_errors and attempt < self.max_retries
 
 
 # ── AuditEntry ──
 
 @dataclass(frozen=True)
 class AuditEntry(ValueObject):
-    """Immutable audit record of a workflow event."""
-    id: str = field(default_factory=lambda: f"audit_{__import__('uuid').uuid4().hex[:8]}")
-    instance_id: str = ""
-    step_name: str = ""
+    id: str = field(default_factory=lambda: _uid("audit"))
+    actor: str = ""
+    action: str = ""
     from_state: str = ""
     to_state: str = ""
-    status: str = "success"
-    error_message: str = ""
-    duration_ms: int = 0
+    metadata: dict = field(default_factory=dict)
     timestamp: datetime = field(default_factory=utcnow)
+
+
+# ── WorkflowDefinition ──
+
+@dataclass(frozen=True)
+class WorkflowDefinition(ValueObject):
+    id: str = field(default_factory=lambda: _uid("wfd"))
+    name: str = ""
+    description: str = ""
+    steps: list[WorkflowStep] = field(default_factory=list)
+    initial_state: str = WorkflowStates.CREATED
+    allowed_transitions: list[Transition] = field(default_factory=list)
+    retry_policy: RetryPolicy = field(default_factory=RetryPolicy)
+
+    def _validate(self) -> None:
+        if not self.steps: raise ValueError("At least one step required")
+
+    def can_transition(self, from_state: str, to_state: str) -> bool:
+        for t in self.allowed_transitions:
+            if t.from_state == from_state and t.to_state == to_state:
+                return True
+        return False
+
+    def get_step_by_order(self, order: int) -> WorkflowStep | None:
+        for s in self.steps:
+            if s.order == order: return s
+        return None
+
+    @staticmethod
+    def knowledge_pipeline() -> "WorkflowDefinition":
+        return WorkflowDefinition(
+            id="wfd_knowledge_pipeline",
+            name="KnowledgePipeline",
+            description="CREATED->COLLECTING->VERIFYING->NORMALIZING->ENRICHING->INDEXING->PUBLISHED",
+            initial_state=WorkflowStates.CREATED,
+            steps=[
+                WorkflowStep(id="step_create", name="create", order=0),
+                WorkflowStep(id="step_collect", name="collect", order=1),
+                WorkflowStep(id="step_verify", name="verify", order=2),
+                WorkflowStep(id="step_normalize", name="normalize", order=3),
+                WorkflowStep(id="step_enrich", name="enrich", order=4),
+                WorkflowStep(id="step_index", name="index", order=5),
+                WorkflowStep(id="step_publish", name="publish", order=6),
+            ],
+            allowed_transitions=[
+                Transition(WorkflowStates.CREATED, WorkflowStates.COLLECTING),
+                Transition(WorkflowStates.COLLECTING, WorkflowStates.VERIFYING),
+                Transition(WorkflowStates.VERIFYING, WorkflowStates.NORMALIZING),
+                Transition(WorkflowStates.NORMALIZING, WorkflowStates.ENRICHING),
+                Transition(WorkflowStates.ENRICHING, WorkflowStates.INDEXING),
+                Transition(WorkflowStates.INDEXING, WorkflowStates.PUBLISHED),
+            ],
+        )
 
 
 # ── WorkflowInstance ──
 
 @dataclass
 class WorkflowInstance:
-    """A running instance of a workflow definition.
-
-    Tracks current state, step transitions, retries, and audit history.
-    """
-    id: str = field(default_factory=lambda: f"wf_{__import__('uuid').uuid4().hex[:8]}")
-    definition: WorkflowDefinition = field(default_factory=WorkflowDefinition.knowledge_pipeline)
-    current_state: str = "COLLECTED"
-    step_index: int = 0
+    id: str = field(default_factory=lambda: _uid("wf"))
+    workflow_definition_id: str = ""
+    entity_id: str = ""
+    current_state: str = WorkflowStates.CREATED
+    step_order: int = 0
     retry_count: int = 0
-    audit_history: list[AuditEntry] = field(default_factory=list)
-    metadata: StandardMetadata = field(default_factory=StandardMetadata)
+    created_at: datetime = field(default_factory=utcnow)
+    completed_at: datetime | None = None
     is_completed: bool = False
     is_failed: bool = False
+    audit_history: list[AuditEntry] = field(default_factory=list)
+    metadata: StandardMetadata = field(default_factory=StandardMetadata)
 
-    # ── State Transitions ──
-
-    def transition_to(self, to_state: str) -> bool:
-        """Attempt to transition to a new state. Returns True if valid."""
-        if not self.definition.can_transition(self.current_state, to_state):
+    def transition(self, definition: WorkflowDefinition, to_state: str) -> bool:
+        if not definition.can_transition(self.current_state, to_state):
             return False
-        from_state = self.current_state
+        self._audit("system", "transition", self.current_state, to_state)
         self.current_state = to_state
-        self.step_index += 1
+        self.step_order += 1
         self.retry_count = 0
-        self._audit(from_state, to_state, "success")
         return True
 
-    def advance(self) -> bool:
-        """Advance to the next step in the workflow definition."""
-        if self.step_index >= len(self.definition.steps) - 1:
-            self.is_completed = True
-            return False
-        next_step = self.definition.steps[self.step_index + 1]
-        return self.transition_to(next_step.state)
+    def can_transition(self, definition: WorkflowDefinition, to_state: str) -> bool:
+        return definition.can_transition(self.current_state, to_state)
 
     def complete(self) -> None:
-        """Mark the workflow as successfully completed."""
         self.is_completed = True
+        self.completed_at = utcnow()
 
-    # ── Failure Handling ──
-
-    def record_failure(self, error_type: str, error_message: str) -> bool:
-        """Record a failure. Returns True if should retry."""
-        self._audit(self.current_state, self.current_state, "failure", error_message)
-        if self.definition.retry_policy.should_retry(error_type, self.retry_count):
+    def fail(self, error_type: str, error_message: str, definition: WorkflowDefinition) -> bool:
+        self._audit("system", "fail", self.current_state, WorkflowStates.FAILED,
+                     metadata={"error_type": error_type, "error_message": error_message})
+        if definition.retry_policy.should_retry(error_type, self.retry_count):
             self.retry_count += 1
             return True
         self.is_failed = True
+        self.current_state = WorkflowStates.FAILED
         return False
 
     def recover(self) -> None:
-        """Recover from failure state."""
-        if not self.is_failed:
-            raise ValueError("Cannot recover a non-failed workflow")
+        if not self.is_failed: raise ValueError("Not failed")
         self.is_failed = False
         self.retry_count = 0
 
-    # ── Validation ──
-
-    def validate_current_step(self) -> list[str]:
-        """Validate the current step. Returns list of errors."""
-        current = self.definition.steps[self.step_index]
-        errors = []
-        if current.is_required and not self.current_state:
-            errors.append(f"Step '{current.name}' is required but state is empty")
-        return errors
-
-    # ── Properties ──
-
-    @property
-    def current_step(self) -> WorkflowStep | None:
-        if self.step_index < len(self.definition.steps):
-            return self.definition.steps[self.step_index]
-        return None
-
-    # ── Audit ──
-
-    def _audit(self, from_state: str, to_state: str, status: str, error: str = "") -> None:
+    def _audit(self, actor: str, action: str, from_s: str, to_s: str, metadata: dict | None = None) -> None:
         self.audit_history.append(AuditEntry(
-            instance_id=self.id,
-            step_name=self.current_step.name if self.current_step else "",
-            from_state=from_state,
-            to_state=to_state,
-            status=status,
-            error_message=error,
+            actor=actor, action=action, from_state=from_s, to_state=to_s,
+            metadata=metadata or {},
         ))
 
-    # ── Dunder ──
+    @property
+    def current_step(self) -> int:
+        return self.step_order
 
     def __repr__(self) -> str:
-        return f"WorkflowInstance(id={self.id}, state={self.current_state}, step={self.step_index})"
+        return f"WorkflowInstance(id={self.id}, state={self.current_state}, failed={self.is_failed})"

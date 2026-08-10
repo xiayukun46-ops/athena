@@ -18,8 +18,8 @@ from .lifecycle import (
     ArticleLifecycle, SourceLifecycle, TaskLifecycle,
 )
 from .workflow import (
-    WorkflowState, Transition, RetryPolicy, WorkflowStep,
-    WorkflowDefinition, WorkflowInstance, AuditEntry,
+    WorkflowStates, WorkflowState, Transition, RetryPolicy,
+    WorkflowStep, WorkflowDefinition, WorkflowInstance, AuditEntry,
 )
 from .events import (
     KnowledgeCreated as KCreated,
@@ -41,7 +41,7 @@ __all__ = [
     "QualityScore", "Permission", "PermissionScope",
     "StateMachine", "EntityLifecycle", "RelationLifecycle", "StatementLifecycle",
     "ArticleLifecycle", "SourceLifecycle", "TaskLifecycle",
-    "WorkflowState", "Transition", "RetryPolicy", "WorkflowStep",
+    "WorkflowStates", "WorkflowState", "Transition", "RetryPolicy", "WorkflowStep",
     "WorkflowDefinition", "WorkflowInstance", "AuditEntry",
     "EntityCreated", "EntityUpdated", "RelationCreated",
 ]

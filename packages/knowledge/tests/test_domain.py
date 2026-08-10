@@ -276,11 +276,10 @@ class TestWorkflow:
         assert rp.delay_for(1) == 2.0
         assert rp.delay_for(2) == 4.0
 
-    def test_workflow_instance_advances(self):
+    def test_workflow_instance(self):
+        from athena_knowledge.workflow import WorkflowStates
         wf = WorkflowInstance()
-        assert wf.current_state == "COLLECTED"
-        assert wf.advance() is True
-        assert wf.current_state == "VERIFIED"
+        assert wf.current_state == WorkflowStates.CREATED
 
 
 # ═══════════════════════════════════════════════════════════════
