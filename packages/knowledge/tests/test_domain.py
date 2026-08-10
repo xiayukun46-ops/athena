@@ -10,7 +10,7 @@ from athena_knowledge.statement import Statement, StatementSource, StatementAppr
 from athena_knowledge.quality import QualityScore
 from athena_knowledge.permission import Permission, PermissionScope
 from athena_knowledge.lifecycle import EntityLifecycle, RelationLifecycle, StatementLifecycle
-from athena_knowledge.workflow import RetryPolicy, WorkflowContext, WorkflowStageResult
+from athena_knowledge.workflow import RetryPolicy, WorkflowDefinition, WorkflowInstance
 from athena_knowledge.events import EntityCreated, RelationCreated
 
 
@@ -276,12 +276,11 @@ class TestWorkflow:
         assert rp.delay_for(1) == 2.0
         assert rp.delay_for(2) == 4.0
 
-    def test_workflow_context(self):
-        ctx = WorkflowContext()
-        from athena_core.enums import WorkflowStage
-        ctx.transition_to(WorkflowStage.FETCHING)
-        assert ctx.current_stage == WorkflowStage.FETCHING
-        assert ctx.elapsed_ms >= 0
+    def test_workflow_instance_advances(self):
+        wf = WorkflowInstance()
+        assert wf.current_state == "COLLECTED"
+        assert wf.advance() is True
+        assert wf.current_state == "VERIFIED"
 
 
 # ═══════════════════════════════════════════════════════════════
