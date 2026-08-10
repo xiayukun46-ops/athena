@@ -23,6 +23,7 @@ from athena_core.metadata import StandardMetadata
 
 from .quality import QualityScore
 from .permission import Permission
+from .evidence import Evidence, ContentReference
 
 
 # ── Value Objects ──
@@ -64,15 +65,6 @@ class StatementSource(ValueObject):
     article_id: ArticleId
     snippet: str = ""
     position: int = 0
-
-
-@dataclass(frozen=True)
-class Evidence(ValueObject):
-    statement_id: StatementId
-    source: StatementSource
-    confidence: float = 0.5
-    def _validate(self) -> None:
-        if not 0.0 <= self.confidence <= 1.0: raise ValueError("Confidence 0.0-1.0")
 
 
 # ── Knowledge Components (not aggregates) ──
@@ -227,9 +219,12 @@ class KnowledgeObject(AggregateRoot):
     def add_statement(self, statement: KnowledgeStatement) -> KnowledgeStatement:
         self.statements.append(statement)
         self.evidence.append(Evidence(
-            statement_id=statement.id,
-            source=statement.source,
-            confidence=statement.confidence,
+            knowledge_object_id=self.id,
+            source_id=self.source_id,
+            evidence_type="article_excerpt",
+            content_ref=ContentReference(url=str(statement.source.article_id)),
+            original_quote=statement.source.snippet,
+            location_description=f"position {statement.source.position}",
         ))
         self._touch()
         return statement
@@ -259,7 +254,7 @@ class KnowledgeObject(AggregateRoot):
     def recalculate_quality(self) -> None:
         self.quality_score = QualityScore.compute(
             properties=[p for e in self.entities for p in e.properties],
-            source_count=len({e.source.article_id for e in self.evidence}),
+            source_count=len({e.source_id for e in self.evidence}),
         )
         self._touch()
 

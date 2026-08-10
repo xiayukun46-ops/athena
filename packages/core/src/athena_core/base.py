@@ -85,25 +85,7 @@ class AggregateRoot(ABC):
 @dataclass
 class Entity(ABC):
     """Base class for domain entities.
-
-    Entities have a unique identity that persists through state changes.
-    Unlike value objects, two entities with identical attributes are not equal
-    unless they share the same identity.
     """
-
-    @property
-    @abstractmethod
-    def id(self) -> Any:
-        """Entity unique identifier."""
-        ...
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Entity):
-            return NotImplemented
-        return self.id == other.id
-
-    def __hash__(self) -> int:
-        return hash(self.id)
 
 
 @dataclass(frozen=True)

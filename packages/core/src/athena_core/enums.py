@@ -197,6 +197,18 @@ class AuthorityLevel(StrEnum):
     UNVERIFIED = "unverified"
 
 
+class EvidenceType(StrEnum):
+    """Types of evidence supporting knowledge claims."""
+    ARTICLE_EXCERPT = "article_excerpt"
+    RESEARCH_PAPER = "research_paper"
+    DATASET = "dataset"
+    OFFICIAL_STATEMENT = "official_statement"
+    GOVERNMENT_RECORD = "government_record"
+    API_RESPONSE = "api_response"
+    IMAGE = "image"
+    VIDEO = "video"
+
+
 class VerificationStatus(StrEnum):
     """Verification state for source authority."""
     PENDING = "pending"

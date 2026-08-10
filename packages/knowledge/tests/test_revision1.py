@@ -64,7 +64,7 @@ class TestKnowledgeObject:
         ko.add_statement(s)
         assert len(ko.statements) == 1
         assert len(ko.evidence) == 1
-        assert ko.evidence[0].statement_id == sid
+        assert ko.evidence[0].knowledge_object_id == ko.id
 
     def test_lifecycle_verify(self):
         ko = KnowledgeObject()
