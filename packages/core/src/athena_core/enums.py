@@ -92,8 +92,14 @@ class ReviewStatus(StrEnum):
 
 class SourceType(StrEnum):
     """Types of content sources."""
-    RSS = "rss"
+    OFFICIAL_WEBSITE = "official_website"
+    SCIENTIFIC_JOURNAL = "scientific_journal"
+    GOVERNMENT = "government"
+    RESEARCH_INSTITUTION = "research_institution"
+    REPOSITORY = "repository"
+    DATASET = "dataset"
     API = "api"
+    RSS = "rss"
     SCRAPER = "scraper"
     MANUAL = "manual"
 
@@ -181,3 +187,28 @@ class WorkflowStageStatus(StrEnum):
     FAILED = "failed"
     RETRYING = "retrying"
     DEAD_LETTER = "dead_letter"
+
+
+class AuthorityLevel(StrEnum):
+    """Authority tier for content sources."""
+    PRIMARY = "primary"
+    SECONDARY = "secondary"
+    TERTIARY = "tertiary"
+    UNVERIFIED = "unverified"
+
+
+class VerificationStatus(StrEnum):
+    """Verification state for source authority."""
+    PENDING = "pending"
+    VERIFIED = "verified"
+    REJECTED = "rejected"
+    EXPIRED = "expired"
+
+
+class LicenseType(StrEnum):
+    """Content license types for sources."""
+    OPEN_ACCESS = "open_access"
+    CREATIVE_COMMONS = "creative_commons"
+    PUBLIC_DOMAIN = "public_domain"
+    COPYRIGHT = "copyright"
+    UNKNOWN = "unknown"
